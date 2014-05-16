@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# personal build script
+
+set -e
+set -u
+
+function usage() {
+    echo "usage: $0 [--all-at-once | --if-needed]... [<commit-ish>]"
+}
+
+all_at_once=false
+if_needed=false
+
+while (( $# > 0 )); do
+    case "$1" in
+        --all-at-once) all_at_once=true;;
+        --if-needed) if_needed=true;;
+        -'?' | --help) usage; exit 0;;
+        --) shift; break;;
+        -*) echo "Error: unexpected option $1" >&2; usage >&2; exit 1;;
+        *) break;;
+    esac
+    shift
+done
+
+if [ $# -gt 1 ]; then
+    usage >&2
+    exit 1
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+
+to_push="$(git rev-parse "${1-HEAD}")"
+echo "Last commit to push ${to_push}"
+
+git f
+
+upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})"
+remote="${upstream%/*}"
+remote_branch="${upstream#*/}"
+[ "${remote}/${remote_branch}" = "${upstream}" ] || {
+    echo "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}" >&2
+    exit 1
+}
+echo "Found upstream ${upstream} on remote ${remote}"
+
+upstream_commit="$(git rev-parse "${upstream}")"
+echo "upstream ${upstream} is at ${upstream_commit}"
+if [ "${to_push}" = "${upstream_commit}" ]; then
+    case "${if_needed}" in
+        true)
+            echo "Nothing to push."
+            exit
+            ;;
+        *)
+            echo "Error: commit to push is the same as upstream ${upstream}. Nothing to push." >&2
+            exit 1
+            ;;
+    esac
+fi
+
+merge_base="$(git merge-base "${to_push}" "${upstream_commit}")"
+if [ "${merge_base}" != "${upstream_commit}" ]; then
+    echo "Error: merge-base is ${merge_base}, which is not the same as upstream ${upstream}. Please rebase." >&2
+    exit 1
+fi
+
+if [ "${all_at_once}" = false ]; then
+    to_push=($(git rev-list --reverse "${upstream_commit}..${to_push}"))
+    echo "Total of ${#to_push[@]} commits to push:"
+    printf "%s\n" "${to_push[@]}"
+fi
+
+original_dir="$PWD"
+workdir="$(dirname "${original_dir}")/.$(basename "${original_dir}")-workdir"
+[ -e "${workdir}" ] || {
+    echo "Creating new shadow working directory ${workdir}"
+    /usr/local/share/git-core/contrib/workdir/git-new-workdir "${original_dir}" "${workdir}" "${to_push}"
+}
+
+echo "Moving to shadow working directory ${workdir}"
+cd "${workdir}"
+
+for commit in "${to_push[@]}"; do
+    echo "Preparing to validate and push $commit"
+    git reset --hard "${commit}"
+    git clean -fxd
+
+    for path in .cache go; do
+        original="${original_dir}/${path}"
+        if [ -e "${original}" ]; then
+            echo "Linking ${path} to ${original}"
+            ln -s "${original}" "${path}"
+        fi
+    done
+
+    echo "Building the project"
+    if [ -e go.sh ]; then
+        echo "I recommend that you do:" >&2
+        echo "    mv go.sh go" >&2
+        exit 1
+    elif [ -e go ]; then
+        ./go
+    elif [ -e pre-commit.sh ]; then
+        ./pre-commit.sh
+    elif [ -e build/sbt ]; then
+        ./build/sbt +clean +test +package
+    elif [ -e *.sbt ] || [ -e project/*.sbt ] || [ -e project/*.scala ]; then
+        sbt +clean +test +package
+    else
+        echo "Couldn't find a runner for this project" >&2
+        exit 1
+    fi
+
+    if ! git diff --quiet; then
+        echo
+        echo "ERROR: Unstaged changes after a successful build run!" >&2
+        git status
+        exit 1
+    fi
+
+    echo "$commit validated; pushing"
+    git push "${remote}" "${commit}:${remote_branch}"
+done
+
+echo "SUCCESS: pushed ${to_push} to ${upstream}"
