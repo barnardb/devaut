@@ -5,7 +5,26 @@ set -e
 set -u
 
 function usage() {
-    echo "usage: $0 [--all-at-once | --if-needed]... [<commit-ish>]"
+    cat <<"EOF"
+usage: push [--all-at-once | --if-needed]... [<commit-ish>]
+
+`push` helps you get all of your amazing commits pushed upstream,
+without letting obvious accidents slip through.
+
+It will validate and push commits that haven't yet been pushed upstream.
+Commits are validated by running them in a shadow worktree using
+[git-new-workdir](https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir),
+so that you can keep on working while the build is running.
+
+The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
+
+Each commit is validated and pushed individually, or you can `push --all-at-once`.
+
+You'll get an error message and non-zero exit status if there's nothing to push,
+but you can `push --if-needed` to have your shell keep its cool.
+
+Happy pushing :)
+EOF
 }
 
 all_at_once=false
