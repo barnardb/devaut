@@ -111,7 +111,7 @@ for commit in "${to_push[@]}"; do
 
     for path in .cache cache go; do
         original="${original_dir}/${path}"
-        if [ -e "${original}" ]; then
+        if ! [ -e "${path}" ] && [ -e "${original}" ]; then
             echo "Linking ${path} to ${original}"
             ln -s "${original}" "${path}"
         fi
