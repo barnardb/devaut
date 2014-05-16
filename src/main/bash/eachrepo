@@ -1,0 +1,42 @@
+#/bin/sh
+set -e
+set -u
+
+usage() {
+    echo "usage: eachrepo [--sequential] command [args...]"
+}
+
+show_help() {
+    usage
+    cat <<"EOF"
+
+`eachrepo` makes it easy to issue a command in all git repositories under the current directory.
+Commands are issued in parallel using [GNU Parallel](http://www.gnu.org/software/parallel/),
+unless the --sequential flag is provided.
+
+For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
+EOF
+}
+
+parallel=true
+
+while (( $# > 0 )); do
+    case "$1" in
+        --sequential) parallel=false;;
+        -'?' | --help) show_help; exit 0;;
+        --) shift; break;;
+        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
+        *) break;;
+    esac
+    shift
+done
+
+command="[ ! -d '%s/.git' ] || { echo && echo 'In %s' && cd '%s' && { $* || { s=\$? && . '${HOME}/development/me/bash-utils/scripting.sh' && red \"FAILED \$s in %s\" >&2 && false; }; } && cd ..; }"
+
+if [ "${parallel}" = "true" ] && which -s parallel; then
+    exec parallel --group -j 0 "$(printf "$command" {} {} {} {})" ::: *
+else
+    for d in *; do
+        eval $(printf "$command" "$d" "$d" "$d" "$d")
+    done
+fi
