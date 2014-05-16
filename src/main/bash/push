@@ -33,7 +33,7 @@ cd "$(git rev-parse --show-toplevel)"
 to_push="$(git rev-parse "${1-HEAD}")"
 echo "Last commit to push ${to_push}"
 
-git f
+git fetch
 
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})"
 remote="${upstream%/*}"
