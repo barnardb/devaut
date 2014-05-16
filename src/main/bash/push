@@ -86,7 +86,7 @@ for commit in "${to_push[@]}"; do
     git reset --hard "${commit}"
     git clean -fxd
 
-    for path in .cache go; do
+    for path in .cache cache go; do
         original="${original_dir}/${path}"
         if [ -e "${original}" ]; then
             echo "Linking ${path} to ${original}"
