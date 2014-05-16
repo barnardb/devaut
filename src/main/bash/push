@@ -4,9 +4,13 @@
 set -e
 set -u
 
-function usage() {
+usage() {
+    echo "usage: push [--all-at-once | --if-needed]... [<commit-ish>]"
+}
+
+show_help() {
+    usage
     cat <<"EOF"
-usage: push [--all-at-once | --if-needed]... [<commit-ish>]
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -34,9 +38,9 @@ while (( $# > 0 )); do
     case "$1" in
         --all-at-once) all_at_once=true;;
         --if-needed) if_needed=true;;
-        -'?' | --help) usage; exit 0;;
+        -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) echo "Error: unexpected option $1" >&2; usage >&2; exit 1;;
+        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
         *) break;;
     esac
     shift
