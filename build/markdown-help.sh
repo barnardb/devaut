@@ -8,7 +8,7 @@ fail() { echo "$1" >&2; exit 1; }
 [ -e "$1" ] || fail "not executable: $1"
 
 echo
-echo "## \`$(basename "$1")\`"
+echo "### \`$(basename "$1")\`"
 echo
-"$1" --help | sed 's/^usage: \(.*\)/usage `\1`/'
+"$1" --help | sed 's/^usage: \(.*\)/usage: `\1`/'
 echo

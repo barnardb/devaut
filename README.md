@@ -1,18 +1,18 @@
 DevAut
 ======
 
-Tools for you to automate your life as a developer.
+These are some tools that help me automate myself.
+I suspect some of them might help you automate yourself too.
 
-Have fun.
 
 Commands
 --------
 
 <!-- BEGIN AUTOGEN COMMAND DESCRIPTIONS -->
 
-## `eachrepo`
+### `eachrepo`
 
-usage `eachrepo [--sequential] command [args...]`
+usage: `eachrepo [--sequential] command [args...]`
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
 Commands are issued in parallel using [GNU Parallel](http://www.gnu.org/software/parallel/),
@@ -21,9 +21,9 @@ unless the --sequential flag is provided.
 For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
 
 
-## `push`
+### `push`
 
-usage `push [--all-at-once | --if-needed]... [<commit-ish>]`
+usage: `push [--all-at-once | --if-needed]... [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
