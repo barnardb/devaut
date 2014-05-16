@@ -112,7 +112,7 @@ for commit in "${to_push[@]}"; do
         exit 1
     fi
 
-    if ! git diff --quiet; then
+    if [ -n "$(git ls-files --modified --others --exclude-standard)" ]; then
         echo
         echo "ERROR: Unstaged changes after a successful build run!" >&2
         git status
