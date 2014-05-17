@@ -5,7 +5,7 @@ set -o pipefail
 
 fail() { echo "$1" >&2; exit 1; }
 [ $# -eq 1 ] || fail "usage: <filename>"
-[ -e "$1" ] || fail "not executable: $1"
+[ -x "$1" ] || fail "not executable: $1"
 
 echo
 echo "### \`$(basename "$1")\`"
