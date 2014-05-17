@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -e
+set -u
+
+usage() { echo "usage: checkrepo"; }
+
+show_help() {
+    usage
+    cat <<'EOF'
+
+`checkrepo` is a tool for staying on top of changes in a repository,
+bu showing the diff of each new commit in turn.
+
+The last reviewed commit is tagged as "reviewed".
+
+NOTE: The projects I mainly work on tend to branching and merging as much as possible.
+As a result, I have made no effort to make this script robust in the face of merge commits.
+EOF
+}
+
+fail() {
+    echo "Error: $1"
+    usage
+    echo
+    echo "Use -? or --help for help, or -- to separate arguments from options"
+    exit 1
+} >&2
+
+while (( $# > 0 )); do
+    case "$1" in
+        -'?' | --help) show_help; exit 0;;
+        --) shift; break;;
+        -*) fail "unexpected option $1";;
+        *) break;;
+    esac
+    shift
+done
+
+if [ $# -gt 0 ]; then
+    fail "unexpected arguments: $*"
+fi
+
+readonly tag_name="reviewed"
+
+script_path="${BASH_SOURCE[0]}"
+while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; done
+scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
+. "${scripting_dir}/color.sh"
+
+remote="$(git remote)"
+[ "${remote}" ] || remote="$(git branch --remote)"
+if [ ! "${remote}" ]; then
+    echo "Nothing to review (no remotes and no remote branches)"
+    exit
+elif [ $(($(wc -l <<<"${remote}"))) -ne 1 ]; then
+    remote=origin
+fi
+remote="${remote#  }"
+
+if [ "$(git tag --list "${tag_name}")" ]; then
+    commit_range="${tag_name}..${remote}"
+else
+    red "Tag \"${tag_name}\" not found, starting at the beginning of time"
+    commit_range="${remote}"
+fi
+
+commits="$(git rev-list --reverse "${commit_range}" --)"
+count=$(($(echo "${commits}" | wc -w)))
+case "${count}" in
+    0) echo "There are no commits to review"; exit;;
+    1) echo "There is 1 commit to review";;
+    *) echo "There are ${count} commits to review";;
+esac
+
+git --no-pager log --reverse --format='%C(yellow)%h%Creset %ai %C(green)%aN%Creset  %s' "${commit_range}" --
+read
+
+index=0
+for commit in ${commits}; do
+    index=$((index + 1))
+    git show "${commit}";
+    read -p "${index} of ${count}: Accept commit ${commit}? [yes] "
+    yes=yes
+    [ "${REPLY}" = "${yes:0:${#REPLY}}" ] || exit 1
+    git tag -f "${tag_name}" "${commit}" || exit 1
+done

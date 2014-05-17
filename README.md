@@ -10,6 +10,19 @@ Commands
 
 <!-- BEGIN AUTOGEN COMMAND DESCRIPTIONS -->
 
+### `checkrepo`
+
+usage: `checkrepo`
+
+`checkrepo` is a tool for staying on top of changes in a repository,
+bu showing the diff of each new commit in turn.
+
+The last reviewed commit is tagged as "reviewed".
+
+NOTE: The projects I mainly work on tend to branching and merging as much as possible.
+As a result, I have made no effort to make this script robust in the face of merge commits.
+
+
 ### `eachrepo`
 
 usage: `eachrepo [--sequential] <command> [<argument>...]`
