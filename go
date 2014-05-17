@@ -5,8 +5,7 @@ set -o pipefail
 
 shellcheck go
 
-# TODO: clean up eachrepo and remove "push" from the line below
-git ls-files src/main/bash/push -z | xargs -0 shellcheck
+git ls-files src/main/bash -z | xargs -0 shellcheck
 
 rm -rf target
 mkdir -p target

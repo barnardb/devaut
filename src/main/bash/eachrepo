@@ -3,7 +3,7 @@ set -e
 set -u
 
 usage() {
-    echo "usage: eachrepo [--sequential] command [args...]"
+    echo "usage: eachrepo [--sequential] <command> [<argument>...]"
 }
 
 show_help() {
@@ -31,12 +31,27 @@ while (( $# > 0 )); do
     shift
 done
 
-command="[ ! -d '%s/.git' ] || { echo && echo 'In %s' && cd '%s' && { $* || { s=\$? && . '${HOME}/development/me/bash-utils/scripting.sh' && red \"FAILED \$s in %s\" >&2 && false; }; } && cd ..; }"
+[ $# -gt 0 ] || error "missing command"
+
+run_in_dir() {
+    repo="$(basename "$1")"
+    cd "$1"
+    shift
+    echo
+    echo "In ${repo}"
+    "$@" || {
+        exit_status=$?
+        . "${HOME}/development/me/bash-utils/scripting.sh"
+        red "FAILED ${exit_status} in ${repo}" >&2
+        exit 1
+    }
+    exit 0
+}
+
+export -f run_in_dir
 
 if [ "${parallel}" = "true" ] && which -s parallel; then
-    exec parallel --group -j 0 "$(printf "$command" {} {} {} {})" ::: *
+    find . -depth 1 -type d -execdir test -d {}/.git ';' -prune -print0 | exec parallel -0 --group -j 0 run_in_dir {} "$(printf '%q ' "$@")" ';'
 else
-    for d in *; do
-        eval $(printf "$command" "$d" "$d" "$d" "$d")
-    done
+    find . -depth 1 -type d -execdir test -d {}/.git ';' -prune -exec bash -c 'run_in_dir "$@"' - {} "$@" ';'
 fi

@@ -12,7 +12,7 @@ Commands
 
 ### `eachrepo`
 
-usage: `eachrepo [--sequential] command [args...]`
+usage: `eachrepo [--sequential] <command> [<argument>...]`
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
 Commands are issued in parallel using [GNU Parallel](http://www.gnu.org/software/parallel/),
