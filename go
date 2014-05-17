@@ -5,12 +5,12 @@ set -o pipefail
 
 shellcheck go
 
-git ls-files src/main/bash -z | xargs -0 shellcheck
+find src/main/bash -type f -exec shellcheck {} ';'
 
 rm -rf target
 mkdir -p target
 
-command_descriptions="$(git ls-files src/main/bash/ -z | xargs -0 -n 1 ./build/markdown-help.sh)"
+command_descriptions="$(find src/main/bash -type f -perm ++x -exec ./build/markdown-help.sh {} ';')"
 cp README.md target/previous_README.md
 awk '/BEGIN/ { print; while (getline < "/dev/stdin") print; print ""; getline; while (!/END/) getline } { print }' \
     target/previous_README.md \

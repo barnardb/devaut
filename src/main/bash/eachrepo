@@ -33,6 +33,10 @@ done
 
 [ $# -gt 0 ] || error "missing command"
 
+script_path="${BASH_SOURCE[0]}"
+while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; done
+export _scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
+
 run_in_dir() {
     repo="$(basename "$1")"
     cd "$1"
@@ -41,7 +45,7 @@ run_in_dir() {
     echo "In ${repo}"
     "$@" || {
         exit_status=$?
-        . "${HOME}/development/me/bash-utils/scripting.sh"
+        . "${_scripting_dir}/color.sh"
         red "FAILED ${exit_status} in ${repo}" >&2
         exit 1
     }
