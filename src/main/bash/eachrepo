@@ -54,8 +54,12 @@ run_in_dir() {
 
 export -f run_in_dir
 
+find_git_worktrees() {
+    find . -depth 1 -type d -not \( -name '.*' -prune \) -execdir test -d {}/.git ';' -prune "$@"
+}
+
 if [ "${parallel}" = "true" ] && which -s parallel; then
-    find . -depth 1 -type d -execdir test -d {}/.git ';' -prune -print0 | exec parallel -0 --group -j 0 run_in_dir {} "$(printf '%q ' "$@")" ';'
+    find_git_worktrees -print0 | exec parallel -0 --group -j 0 run_in_dir {} "$(printf '%q ' "$@")" ';'
 else
-    find . -depth 1 -type d -execdir test -d {}/.git ';' -prune -exec bash -c 'run_in_dir "$@"' - {} "$@" ';'
+    find_git_worktrees -exec bash -c 'run_in_dir "$@"' - {} "$@" ';'
 fi
