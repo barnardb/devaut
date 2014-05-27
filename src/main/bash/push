@@ -118,11 +118,13 @@ for commit in "${to_push[@]}"; do
     git reset --hard "${commit}"
     git clean -fxd
 
+    link_exclusions=()
     for path in .cache cache go; do
         original="${original_dir}/${path}"
         if ! [ -e "${path}" ] && [ -e "${original}" ]; then
             echo "Linking ${path} to ${original}"
             ln -s "${original}" "${path}"
+            link_exclusions+=(--exclude "${path}")
         fi
     done
 
@@ -144,7 +146,7 @@ for commit in "${to_push[@]}"; do
         exit 1
     fi
 
-    if [ -n "$(git ls-files --modified --others --exclude-standard)" ]; then
+    if [ -n "$(git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
         echo
         echo "ERROR: Unstaged changes after a successful build run!" >&2
         git status
