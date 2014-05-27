@@ -5,7 +5,7 @@ set -e
 set -u
 
 usage() {
-    echo "usage: push [--all-at-once | --if-needed]... [<commit-ish>]"
+    echo "usage: push [--all-at-once | --dry-run | --if-needed]... [<commit-ish>]"
 }
 
 show_help() {
@@ -24,6 +24,9 @@ The current branch is pushed by default, or you can specify the commit-ish (bran
 
 Each commit is validated and pushed individually, or you can `push --all-at-once`.
 
+Use `--dry-run` to do everything *except* the final push.
+This is a convenient way to validate commits in a clean environment without pushing.
+
 You'll get an error message and non-zero exit status if there's nothing to push,
 but you can `push --if-needed` to have your shell keep its cool.
 
@@ -32,11 +35,13 @@ EOF
 }
 
 all_at_once=false
+dry_run=false
 if_needed=false
 
 while (( $# > 0 )); do
     case "$1" in
         --all-at-once) all_at_once=true;;
+        --dry-run) dry_run=true;;
         --if-needed) if_needed=true;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
@@ -52,6 +57,10 @@ if [ $# -gt 1 ]; then
 fi
 
 cd "$(git rev-parse --show-toplevel)"
+
+if [ "${dry_run}" = "true" ]; then
+    echo "This is a DRY RUN: Nothing will actually be pushed"
+fi
 
 to_push="$(git rev-parse "${1-HEAD}")"
 echo "Last commit to push ${to_push}"
@@ -143,7 +152,16 @@ for commit in "${to_push[@]}"; do
     fi
 
     echo "$commit validated; pushing"
-    git push "${remote}" "${commit}:${remote_branch}"
+    if [ "${dry_run}" = true ]; then
+        echo "Skipping push due to DRY RUN"
+    else
+        git push "${remote}" "${commit}:${remote_branch}"
+    fi
 done
 
-echo "SUCCESS: pushed ${to_push} to ${upstream}"
+if [ "${dry_run}" = true ]; then
+    result="would have pushed (but for DRY RUN)"
+else
+    result="pushed"
+fi
+echo "SUCCESS: ${result} ${to_push} to ${upstream}"

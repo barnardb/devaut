@@ -23,7 +23,7 @@ For example, you might find `eachrepo git fetch` useful before disconnecting fro
 
 ### `push`
 
-usage: `push [--all-at-once | --if-needed]... [<commit-ish>]`
+usage: `push [--all-at-once | --dry-run | --if-needed]... [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -36,6 +36,9 @@ so that you can keep on working while the build is running.
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
 
 Each commit is validated and pushed individually, or you can `push --all-at-once`.
+
+Use `--dry-run` to do everything *except* the final push.
+This is a convenient way to validate commits in a clean environment without pushing.
 
 You'll get an error message and non-zero exit status if there's nothing to push,
 but you can `push --if-needed` to have your shell keep its cool.
