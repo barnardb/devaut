@@ -146,7 +146,7 @@ for commit in "${to_push[@]}"; do
         exit 1
     fi
 
-    if [ -n "$(git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
+    if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
         echo
         echo "ERROR: Unstaged changes after a successful build run!" >&2
         git status
