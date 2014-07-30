@@ -5,7 +5,7 @@ set -o pipefail
 
 shellcheck go
 
-find src/main/bash -type f -exec shellcheck {} ';'
+find src/main/bash -type f \( -not -name '*.swp' \) -exec shellcheck {} ';'
 
 rm -rf target
 mkdir -p target
