@@ -5,7 +5,7 @@ set -e
 set -u
 
 usage() {
-    echo "usage: push [--all-at-once | --dry-run | --if-needed]... [<commit-ish>]"
+    echo "usage: push [--all-at-once | --dry-run | --if-needed | --no-fetch]... [<commit-ish>]"
 }
 
 show_help() {
@@ -22,6 +22,10 @@ so that you can keep on working while the build is running.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
 
+The first step is a check to make sure you have a fast-forward commit.
+To ensure we have the current remote state,
+this is preceeded by a call to `git fetch` unless disabled with the `--no-fetch` flag.
+
 Each commit is validated and pushed individually, or you can `push --all-at-once`.
 
 Use `--dry-run` to do everything *except* the final push.
@@ -37,12 +41,14 @@ EOF
 all_at_once=false
 dry_run=false
 if_needed=false
+perform_fetch=true
 
 while (( $# > 0 )); do
     case "$1" in
         --all-at-once) all_at_once=true;;
         --dry-run) dry_run=true;;
         --if-needed) if_needed=true;;
+        --no-fetch) perform_fetch=false;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
         -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
@@ -65,7 +71,9 @@ fi
 to_push="$(git rev-parse "${1-HEAD}")"
 echo "Last commit to push ${to_push}"
 
-git fetch
+if [ "${perform_fetch}" == true ]; then
+    git fetch
+fi
 
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})"
 remote="${upstream%/*}"
