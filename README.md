@@ -19,8 +19,9 @@ bu showing the diff of each new commit in turn.
 
 The last reviewed commit is tagged as "reviewed".
 
-NOTE: The projects I mainly work on tend to branching and merging as much as possible.
-As a result, I have made no effort to make this script robust in the face of merge commits.
+NOTE: The projects I mainly work on tend to avoid branching and merging as much
+as possible. As a result, I have made no effort to make this script robust in
+the face of merge commits.
 
 
 ### `eachrepo`
