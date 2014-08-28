@@ -15,13 +15,12 @@ Commands
 usage: `checkrepo`
 
 `checkrepo` is a tool for staying on top of changes in a repository,
-bu showing the diff of each new commit in turn.
+by showing the diff of each new commit in turn.
 
 The last reviewed commit is tagged as "reviewed".
 
-NOTE: The projects I mainly work on tend to avoid branching and merging as much
-as possible. As a result, I have made no effort to make this script robust in
-the face of merge commits.
+NOTE: The projects I mainly work on tend to avoid branching and merging as much as possible.
+As a result, I have made no effort to make this script robust in the face of merge commits.
 
 
 ### `eachrepo`
@@ -29,10 +28,15 @@ the face of merge commits.
 usage: `eachrepo [--sequential] <command> [<argument>...]`
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
-Commands are issued in parallel using [GNU Parallel](http://www.gnu.org/software/parallel/),
-unless the --sequential flag is provided.
+Commands are issued in parallel using [GNU Parallel] unless the --sequential flag is provided.
 
 For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
+
+Dependencies:
+
+* [GNU Parallel]
+
+[GNU Parallel]: http://www.gnu.org/software/parallel/
 
 
 ### `push`
@@ -43,8 +47,7 @@ usage: `push [--all-at-once | --dry-run | --if-needed | --no-fetch]... [<commit-
 without letting obvious accidents slip through.
 
 It will validate and push commits that haven't yet been pushed upstream.
-Commits are validated by running them in a shadow worktree using
-[git-new-workdir](https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir),
+Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
@@ -63,4 +66,19 @@ but you can `push --if-needed` to have your shell keep its cool.
 
 Happy pushing :)
 
+Dependencies:
+
+* [git-new-workdir]
+
+[git-new-workdir]: https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir
+
 <!-- END AUTOGEN COMMAND DESCRIPTIONS -->
+
+
+Dev dependencies
+----------------
+
+In addition to runtime (command) dependencies, the development dependencies
+are:
+
+* [shellcheck](https://github.com/koalaman/shellcheck)

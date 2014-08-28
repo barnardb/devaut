@@ -11,10 +11,15 @@ show_help() {
     cat <<"EOF"
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
-Commands are issued in parallel using [GNU Parallel](http://www.gnu.org/software/parallel/),
-unless the --sequential flag is provided.
+Commands are issued in parallel using [GNU Parallel] unless the --sequential flag is provided.
 
 For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
+
+Dependencies:
+
+* [GNU Parallel]
+
+[GNU Parallel]: http://www.gnu.org/software/parallel/
 EOF
 }
 

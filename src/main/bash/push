@@ -16,8 +16,7 @@ show_help() {
 without letting obvious accidents slip through.
 
 It will validate and push commits that haven't yet been pushed upstream.
-Commits are validated by running them in a shadow worktree using
-[git-new-workdir](https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir),
+Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
@@ -35,6 +34,12 @@ You'll get an error message and non-zero exit status if there's nothing to push,
 but you can `push --if-needed` to have your shell keep its cool.
 
 Happy pushing :)
+
+Dependencies:
+
+* [git-new-workdir]
+
+[git-new-workdir]: https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir
 EOF
 }
 
