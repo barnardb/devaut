@@ -12,29 +12,38 @@ show_help() {
     usage
     cat <<"EOF"
 
-`push` helps you get all of your amazing commits pushed upstream,
-without letting obvious accidents slip through.
+`push` helps you get all of your amazing commits pushed upstream, without
+letting obvious accidents slip through.
 
 It will validate and push commits that haven't yet been pushed upstream.
 Commits are validated by running them in a shadow worktree using
-[git-new-workdir](https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir),
-so that you can keep on working while the build is running.
+[git-new-workdir], so that you can keep on working while the build is running.
 
-The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
+The current branch is pushed by default, or you can specify the commit-ish
+(branch, commit, HEAD, …) to use.
 
-The first step is a check to make sure you have a fast-forward commit.
-To ensure we have the current remote state,
-this is preceeded by a call to `git fetch` unless disabled with the `--no-fetch` flag.
+The first step is a check to make sure you have a fast-forward commit.  To
+ensure we have the current remote state, this is preceeded by a call to `git
+fetch` unless disabled with the `--no-fetch` flag.
 
-Each commit is validated and pushed individually, or you can `push --all-at-once`.
+Each commit is validated and pushed individually, or you can `push
+--all-at-once`.
 
-Use `--dry-run` to do everything *except* the final push.
-This is a convenient way to validate commits in a clean environment without pushing.
+Use `--dry-run` to do everything *except* the final push.  This is a convenient
+way to validate commits in a clean environment without pushing.
 
-You'll get an error message and non-zero exit status if there's nothing to push,
-but you can `push --if-needed` to have your shell keep its cool.
+You'll get an error message and non-zero exit status if there's nothing to
+push, but you can `push --if-needed` to have your shell keep its cool.
 
 Happy pushing :)
+
+
+##### Dependencies
+
+* [git-new-workdir]
+
+
+[git-new-workdir]: https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir
 EOF
 }
 
