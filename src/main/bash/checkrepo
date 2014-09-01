@@ -72,7 +72,8 @@ case "${count}" in
     *) echo "There are ${count} commits to review";;
 esac
 
-git --no-pager log --reverse --format='%C(yellow)%h%Creset %ai %C(green)%aN%Creset  %s' "${commit_range}" --
+
+git --no-pager log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) [%an%C(reset)] %C(white)%s%C(reset) %C(dim white)%C(bold yellow)%d%C(reset)' "${commit_range}" --
 read
 
 index=0
