@@ -123,7 +123,7 @@ cd "${workdir}"
 
 for commit in "${to_push[@]}"; do
     echo "Preparing to validate and push $commit"
-    git reset --hard "${commit}"
+    git checkout --force "${commit}"
     git clean -fxd
 
     link_exclusions=()
