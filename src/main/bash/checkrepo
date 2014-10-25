@@ -47,8 +47,7 @@ while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; do
 scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
 . "${scripting_dir}/color.sh"
 
-remote="$(git remote)"
-[ "${remote}" ] || remote="$(git branch --remote)"
+remote="$(git branch --remote)"
 if [ ! "${remote}" ]; then
     echo "Nothing to review (no remotes and no remote branches)"
     exit
