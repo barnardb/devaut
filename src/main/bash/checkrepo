@@ -72,13 +72,13 @@ case "${count}" in
 esac
 
 
-git --no-pager log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) [%an%C(reset)] %C(white)%s%C(reset) %C(dim white)%C(bold yellow)%d%C(reset)' "${commit_range}" --
+git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) [%an%C(reset)] %C(white)%s%C(reset) %C(dim white)%C(bold yellow)%d%C(reset)' "${commit_range}" --
 read
 
 index=0
 for commit in ${commits}; do
     index=$((index + 1))
-    ( git show "${commit}" --stat --color && git show "${commit}" --format=format: --color ) | less -r
+    ( git show "${commit}" --stat --color && git show "${commit}" --format=format: --color ) | less --quit-if-one-screen --RAW-CONTROL-CHARS --no-init
     read -p "${index} of ${count}: Accept commit ${commit}? [yes] "
     yes=yes
     [ "${REPLY}" = "${yes:0:${#REPLY}}" ] || exit 1
