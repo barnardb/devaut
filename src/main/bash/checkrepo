@@ -9,11 +9,11 @@ show_help() {
     cat <<'EOF'
 
 `checkrepo` is a tool for staying on top of changes in a repository,
-bu showing the diff of each new commit in turn.
+by showing the diff of each new commit in turn.
 
 The last reviewed commit is tagged as "reviewed".
 
-NOTE: The projects I mainly work on tend to branching and merging as much as possible.
+NOTE: The projects I mainly work on tend to avoid branching and merging as much as possible.
 As a result, I have made no effort to make this script robust in the face of merge commits.
 EOF
 }
@@ -47,8 +47,7 @@ while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; do
 scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
 . "${scripting_dir}/color.sh"
 
-remote="$(git remote)"
-[ "${remote}" ] || remote="$(git branch --remote)"
+remote="$(git branch --remote)"
 if [ ! "${remote}" ]; then
     echo "Nothing to review (no remotes and no remote branches)"
     exit
@@ -72,13 +71,14 @@ case "${count}" in
     *) echo "There are ${count} commits to review";;
 esac
 
-git --no-pager log --reverse --format='%C(yellow)%h%Creset %ai %C(green)%aN%Creset  %s' "${commit_range}" --
+
+git --no-pager log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) [%an%C(reset)] %C(white)%s%C(reset) %C(dim white)%C(bold yellow)%d%C(reset)' "${commit_range}" --
 read
 
 index=0
 for commit in ${commits}; do
     index=$((index + 1))
-    git show "${commit}";
+    ( git show "${commit}" --stat --color && git show "${commit}" --format=format: --color ) | less -r
     read -p "${index} of ${count}: Accept commit ${commit}? [yes] "
     yes=yes
     [ "${REPLY}" = "${yes:0:${#REPLY}}" ] || exit 1
