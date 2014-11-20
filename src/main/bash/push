@@ -152,23 +152,26 @@ for commit in "${to_push[@]}"; do
         fi
     done
 
-    echo "Building the project"
-    if [ -e go.sh ]; then
-        echo "I recommend that you do:" >&2
-        echo "    mv go.sh go" >&2
-        exit 1
-    elif [ -e go ]; then
-        ./go
+    declare -a build_command
+    if [ -e go ]; then
+        build_command=(./go)
     elif [ -e pre-commit.sh ]; then
-        ./pre-commit.sh
+        build_command=(./pre-commit.sh)
     elif [ -e build/sbt ]; then
-        ./build/sbt +clean +test +package
+        build_command=(./build/sbt +clean +test +package)
     elif [ -e *.sbt ] || [ -e project/*.sbt ] || [ -e project/*.scala ]; then
-        sbt +clean +test +package
+        build_command=(sbt +clean +test +package)
     else
         echo "Couldn't find a runner for this project" >&2
         exit 1
     fi
+    # prevent idle sleep under MacOS during build
+    if [[ "$OSTYPE" == darwin* ]]; then
+        build_command=(caffeinate -i -- "${build_command[@]}")
+    fi
+
+    echo "Building using:$(printf ' %q' "${build_command[@]}")"
+    "${build_command[@]}"
 
     if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
         echo
