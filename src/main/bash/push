@@ -81,13 +81,17 @@ if [ "${perform_fetch}" == true ]; then
 fi
 
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})"
-remote="${upstream%/*}"
 remote_branch="${upstream#*/}"
-[ "${remote}/${remote_branch}" = "${upstream}" ] || {
-    echo "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}" >&2
-    exit 1
-}
-echo "Found upstream ${upstream} on remote ${remote}"
+if [ "${remote_branch}" = "${upstream}" ]; then
+    echo "Using local branch ${upstream} as \"remote\" branch to \"push\" to"
+else 
+    remote="${upstream%/*}"
+    [ "${remote}/${remote_branch}" = "${upstream}" ] || {
+        echo "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}" >&2
+        exit 1
+    }
+    echo "Found upstream ${upstream} on remote ${remote}"
+fi
 
 upstream_commit="$(git rev-parse "${upstream}")"
 echo "upstream ${upstream} is at ${upstream_commit}"
@@ -169,6 +173,10 @@ for commit in "${to_push[@]}"; do
     echo "$commit validated; pushing"
     if [ "${dry_run}" = true ]; then
         echo "Skipping push due to DRY RUN"
+    elif [ "${remote_branch}" = "${upstream}" ]; then
+        git rebase "${commit}" "${remote_branch}"
+    elif [ "${force}" = true ]; then
+        git push --force "${remote}" "${commit}:${remote_branch}"
     else
         git push "${remote}" "${commit}:${remote_branch}"
     fi
