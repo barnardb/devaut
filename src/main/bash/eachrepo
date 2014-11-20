@@ -3,8 +3,16 @@ set -e
 set -u
 
 usage() {
-    echo "usage: eachrepo [--sequential] <command> [<argument>...]"
+    echo "usage: eachrepo [--sequential] [--] <command> [<argument>...]"
 }
+
+error() {
+    echo "ERROR: $1"
+    usage
+    echo
+    printf '%s\n' "Use -? or --help for help" "${@:2}"
+    exit 1
+} >&2
 
 show_help() {
     usage
@@ -30,7 +38,7 @@ while (( $# > 0 )); do
         --sequential) parallel=false;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
+        -*) error "unexpected option $1" "Use -- to separate arguments from options";;
         *) break;;
     esac
     shift
