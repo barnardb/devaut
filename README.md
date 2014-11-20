@@ -41,7 +41,7 @@ Dependencies:
 
 ### `push`
 
-usage: `push [--all-at-once | --dry-run | --if-needed | --no-fetch]... [<commit-ish>]`
+usage: `push [--all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -52,9 +52,10 @@ so that you can keep on working while the build is running.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
 
-The first step is a check to make sure you have a fast-forward commit.
+The first step is a check to make sure you have a fast-forward commit,
+unless `--force` is used to push with the **potentially destructive** and unrecommended `--force` option on `git push`.
 To ensure we have the current remote state,
-this is preceeded by a call to `git fetch` unless disabled with the `--no-fetch` flag.
+the fast-forward check is preceeded by a call to `git fetch` unless disabled with the `--no-fetch` flag.
 
 Each commit is validated and pushed individually, or you can `push --all-at-once`.
 
