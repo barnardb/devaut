@@ -1,1 +1,2 @@
+install: ./scripts/install-dependencies.sh
 script: ./go

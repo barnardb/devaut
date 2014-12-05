@@ -5,7 +5,11 @@ set -o pipefail
 
 shellcheck go
 
-find src/main/bash -type f \( -not -name '*.swp' \) -exec shellcheck {} ';'
+find \
+    go \
+    src/main/bash \
+    scripts \
+    -type f \( -not -name '*.swp' \) -exec shellcheck {} ';'
 
 rm -rf target
 mkdir -p target
