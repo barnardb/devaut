@@ -5,11 +5,18 @@ set -o pipefail
 
 shellcheck go
 
-find \
-    go \
-    src/main/bash \
-    scripts \
-    -type f \( -not -name '*.swp' \) -exec shellcheck {} ';'
+find_scripts() {
+    find \
+        go \
+        src/main/bash \
+        scripts \
+        -type f \
+        \( -not -name '*.swp' \) \
+        \( "$@" \) \
+        -print0
+}
+find_scripts -perm +0111 | xargs -0 shellcheck
+find_scripts -not -perm +0111 | xargs -0 shellcheck --exclude=SC2148
 
 rm -rf target
 mkdir -p target
