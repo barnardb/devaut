@@ -3,7 +3,6 @@ set -e
 set -u
 set -o pipefail
 
-shellcheck go
 
 find_scripts() {
     find \
@@ -15,8 +14,8 @@ find_scripts() {
         \( "$@" \) \
         -print0
 }
-find_scripts -perm +0111 | xargs -0 shellcheck
-find_scripts -not -perm +0111 | xargs -0 shellcheck --exclude=SC2148
+find_scripts -perm +0111 | xargs -0 shellcheck --exclude=SC2016
+find_scripts -not -perm +0111 | xargs -0 shellcheck --exclude=SC2016,SC2148
 
 rm -rf target
 mkdir -p target

@@ -12,6 +12,44 @@ Commands
 
 <!-- BEGIN AUTOGEN COMMAND DESCRIPTIONS -->
 
+### `ccstatus`
+
+usage: `ccstatus [--url <url>] [--element | --all | --attribute <attribute-name>] [--] [<project-name-regex>...]`
+
+`ccstatus` shows you the status of one of more builds as parsed from a CCTray XML file.
+These files are often served by CI/build servers from a path ending in "/cctray.xml".
+
+The URL from which to retrieve the CCTray XML can be explicitly specified using the `--url` flag,
+or will be read from a file in the current working directory named `.cctray-url`.
+If neither of these are present,
+we assume a travis-ci.org build based on the first GitHub repo found in .git/config.
+
+For each <project-name-regex> on the command line,
+all projects whose name maches the extended regular expression will be selected.
+If no `<project-name-regex>`s are specified on the command line,
+ccstatus will look for a fragment identifier in the CCTray XML url and interpret that as a regex;
+e.g., if the url is "http://example.com/cctray.xml#foo.*",
+the regex "foo.*" is used.
+If the url has no fragment identifier,
+all projects in the CCTray XML will be selected,
+as if '.*' had been specified.
+
+The output of `ccstatus` depends on the mode it is running in:
+
+* By default, the output indicates whether the last build of each selected project was successful,
+  returning exit status 1 if there is a failing build.
+
+* `--attribute <attribute-name>` outputs the value of the named attribute for each selected project.
+
+* `--all` outputs all attributes for each selected project.
+
+* `--element` outputs raw `<project/>` XML elements.
+
+Dependencies:
+
+* [XQilla](http://xqilla.sourceforge.net/HomePage)
+
+
 ### `checkrepo`
 
 usage: `checkrepo`

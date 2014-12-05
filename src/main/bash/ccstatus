@@ -1,0 +1,142 @@
+#!/bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+usage() {
+    echo "usage: ccstatus [--url <url>] [--element | --all | --attribute <attribute-name>] [--] [<project-name-regex>...]"
+}
+
+show_help() {
+    usage
+    cat <<"EOF"
+
+`ccstatus` shows you the status of one of more builds as parsed from a CCTray XML file.
+These files are often served by CI/build servers from a path ending in "/cctray.xml".
+
+The URL from which to retrieve the CCTray XML can be explicitly specified using the `--url` flag,
+or will be read from a file in the current working directory named `.cctray-url`.
+If neither of these are present,
+we assume a travis-ci.org build based on the first GitHub repo found in .git/config.
+
+For each <project-name-regex> on the command line,
+all projects whose name maches the extended regular expression will be selected.
+If no `<project-name-regex>`s are specified on the command line,
+ccstatus will look for a fragment identifier in the CCTray XML url and interpret that as a regex;
+e.g., if the url is "http://example.com/cctray.xml#foo.*",
+the regex "foo.*" is used.
+If the url has no fragment identifier,
+all projects in the CCTray XML will be selected,
+as if '.*' had been specified.
+
+The output of `ccstatus` depends on the mode it is running in:
+
+* By default, the output indicates whether the last build of each selected project was successful,
+  returning exit status 1 if there is a failing build.
+
+* `--attribute <attribute-name>` outputs the value of the named attribute for each selected project.
+
+* `--all` outputs all attributes for each selected project.
+
+* `--element` outputs raw `<project/>` XML elements.
+
+Dependencies:
+
+* [XQilla](http://xqilla.sourceforge.net/HomePage)
+EOF
+}
+
+explicit_url=false
+action=status
+
+while (( $# > 0 )); do
+    case "$1" in
+        --element) action=element;;
+        --all) action=all;;
+        --attribute) action=attribute; attribute_name="$2"; shift;;
+        --url) url="$2"; explicit_url=true; shift;;
+        -'?' | --help) show_help; exit 0;;
+        --) shift; break;;
+        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        *) break;;
+    esac
+    shift
+done
+
+function usage_error() {
+    printf 'Error: %s\n' "$@"
+    usage
+    exit 2
+} >&2
+
+[ "${explicit_url}" = 'true' ] || {
+    if [ -e .cctray-url ]; then
+        url="$(cat .cctray-url)"
+    elif url="https://api.travis-ci.org/repos/$(sed -nE 's,^.*github\.com[/:]([^/]+/[^/]+)\.git$,\1,p' .git/config 2>/dev/null | head -1)/cc.xml"; then
+        echo "Assuming CCTray XML at ${url}"
+    else
+        usage_error 'the URL for the CCTray XML URL must be provided with `--url <url>` or in a file in the current working directory name ".cctray-url"'
+    fi
+}
+
+if [ $# -gt 0 ]; then
+    expressions=("$@")
+else
+    expressions="${url#*#}"
+    [ "${expressions}" != "${url}" ] || expressions='.*'
+fi
+
+function xquery {
+    xqilla <(echo "$1") -i <(
+        if [ $# -eq 2 ]; then
+            echo "$2"
+        else
+            cat
+        fi
+    )
+}
+
+cctray_xml="$(curl --silent "${url}")"
+
+function attribute() {
+    xquery "//Project[@name='${project}']/@$1/string()" "${cctray_xml}"
+}
+
+success=true
+
+function status() {
+    project="$1"
+
+    status="$(attribute lastBuildStatus)"
+
+    if [ "${status}" = "Success" ]; then
+        printf '%s \xe2\x86\x92 \e[1;32m%s\e[m\n' "${project}" "${status}"
+    elif [ -z "${status}" ]; then
+        echo "Couldn't find a project named \"${project}\". Possible candidates:" >&2
+        xquery "//Project[contains(@name, '${project}')]/@name/string()" "${cctray_xml}" >&2
+        exit 2
+    else
+        printf '%s \xe2\x86\x92 \e[1;31m%s\e[m (currently %s) \e[1;31m%s\e[m\n' "${project}" "${status}" "$(attribute activity)" "$(attribute webUrl)"
+        success=false
+    fi
+}
+
+for name in "${expressions[@]}"; do
+    projects=()
+    while read; do
+        projects[${#projects[@]}]="$REPLY"
+    done < <(xquery "//Project/@name/string()" "${cctray_xml}" | grep -E "${name}")
+    [ "${#projects[@]}" -gt 0 ] || { echo "Error: no projects with name matching \"${name}\"" >&2; exit 1; }
+
+    for project in "${projects[@]}"; do
+        case "${action}" in
+            status) status "${project}";;
+            all) xquery "for \$a in //Project[@name = '${project}']/@* return \$a" "${cctray_xml}";;
+            element) xquery "//Project[@name = '${project}']" "${cctray_xml}";;
+            attribute) attribute "${attribute_name}";;
+        esac
+    done
+done
+
+[ "${success}" = true ] || exit 1
