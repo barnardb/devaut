@@ -25,10 +25,10 @@ all projects whose name maches the extended regular expression will be selected.
 If no `<project-name-regex>`s are specified on the command line,
 ccstatus will look for a fragment identifier in the CCTray XML url and interpret that as a regex;
 e.g., if the url is "http://example.com/cctray.xml#foo.*",
-the regex "foo.*" is used.
+the regex `foo.*` is used.
 If the url has no fragment identifier,
 all projects in the CCTray XML will be selected,
-as if '.*' had been specified.
+as if `.*` had been specified.
 
 The output of `ccstatus` depends on the mode it is running in:
 
