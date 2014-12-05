@@ -1,6 +1,8 @@
 DevAut
 ======
 
+[![Build Status](https://travis-ci.org/barnardb/devaut.svg?branch=master)](https://travis-ci.org/barnardb/devaut)
+
 These are some tools that help me automate myself.
 I suspect some of them might help you automate yourself too.
 
