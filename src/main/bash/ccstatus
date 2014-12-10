@@ -111,13 +111,17 @@ function status() {
     status="$(attribute lastBuildStatus)"
 
     if [ "${status}" = "Success" ]; then
-        printf '%s \xe2\x86\x92 \e[1;32m%s\e[m\n' "${project}" "${status}"
+        printf '%s \xe2\x86\x92 \e[32m%s\e[m\n' "${project}" "${status}"
     elif [ -z "${status}" ]; then
         echo "Couldn't find a project named \"${project}\". Possible candidates:" >&2
         xquery "//Project[contains(@name, '${project}')]/@name/string()" "${cctray_xml}" >&2
         exit 2
     else
-        printf '%s \xe2\x86\x92 \e[1;31m%s\e[m (currently %s) \e[1;31m%s\e[m\n' "${project}" "${status}" "$(attribute activity)" "$(attribute webUrl)"
+        activity="$(attribute activity)"
+        case "${activity}" in
+            Building) activity="$(printf '\e[1;33m%s\e[m' "${activity}")";;
+        esac
+        printf '%s \xe2\x86\x92 \e[31m%s\e[m (currently %s) \e[31m%s\e[m\n' "${project}" "${status}" "${activity}" "$(attribute webUrl)"
         success=false
     fi
 }
