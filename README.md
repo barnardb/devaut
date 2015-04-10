@@ -117,14 +117,17 @@ Dependencies:
 ### `tagrelease`
 
 usage: `tagrelease --version <version>`
+
 `tagrelease` asserts that the working copy is clean and creates an annotate tag
 with the version provided in the current repo. It brings up an editor for the
 message which is prepulated with the commit messages since the previous
 release.
 
 The format of version is not enforce, however it is recommended to follow the
-conventions of semantic versioning. The tag name will be the version prefixed
+conventions of [semantic versioning][semver]. The tag name will be the version prefixed
 with the letter v.
+
+[semver]: http://semver.org/
 
 <!-- END AUTOGEN COMMAND DESCRIPTIONS -->
 
