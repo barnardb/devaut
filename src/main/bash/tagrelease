@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+usage() {
+    echo "usage: tagrelease --version <version>"
+}
+
+show_help() {
+    usage
+    cat <<'EOF'
+`tagrelease` asserts that the working copy is clean and creates an annotate tag
+with the version provided in the current repo. It brings up an editor for the
+message which is prepulated with the commit messages since the previous
+release.
+
+The format of version is not enforce, however it is recommended to follow the
+conventions of semantic versioning. The tag name will be the version prefixed
+with the letter v.
+
+EOF
+}
+
+while (( $# > 0 )); do
+    case "$1" in
+        --version) version="$2"; shift;;
+        -'?' | --help) show_help; exit 0;;
+        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        *) break;;
+    esac
+    shift
+done
+
+function usage_error() {
+    printf 'Error: %s\n' "$@"
+    usage
+    exit 2
+} >&2
+
+
+if [[ -z "${version:-}" ]]; then
+    usage_error 'Missing version. Version must be passed in with `--version <version>`'
+fi
+
+dirty=$(git status --porcelain)
+if [ "${dirty}" ]; then
+    usage_error "Cannot release because these files are dirty:
+${dirty}
+"
+    exit 1
+fi >&2
+
+git pull --rebase
+
+find . -name target -prune -exec rm -r {} \;
+
+tag="v${version}"
+
+previous_release_tag=$( git describe --abbrev=0 || git describe --tags --abbrev=0 || git rev-list HEAD | tail -n 1 )
+
+
+git log --pretty=format:"# %s
+
+%b
+
+"  "${previous_release_tag}"..HEAD > /tmp/release-notes-candidate.txt
+
+vim /tmp/release-notes-candidate.txt
+
+release_notes=$(cat /tmp/release-notes-candidate.txt)
+
+git tag -f "${tag}" --annotate --message "${release_notes}"
+
+echo "Release has been tagged to push run:"
+echo git push origin "${tag}" "release-${tag}:master"
