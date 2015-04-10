@@ -48,7 +48,8 @@ done
 
 script_path="${BASH_SOURCE[0]}"
 while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; done
-export _scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
+export _scripting_dir
+_scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
 
 run_in_dir() {
     repo="$(basename "$1")"
