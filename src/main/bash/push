@@ -158,9 +158,9 @@ for commit in "${to_push[@]}"; do
     elif [ -e pre-commit.sh ]; then
         build_command=(./pre-commit.sh)
     elif [ -e build/sbt ]; then
-        build_command=(./build/sbt +clean +test +package)
+        build_command=(./build/sbt +clean +test +doc +package)
     elif ls ./*.sbt &>/dev/null || ls ./project/*.sbt &>/dev/null || ls ./project/*.scala &>/dev/null; then
-        build_command=(sbt +clean +test +package)
+        build_command=(sbt +clean +test +doc +package)
     else
         echo "Couldn't find a runner for this project" >&2
         exit 1
