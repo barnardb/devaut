@@ -59,7 +59,7 @@ while (( $# > 0 )); do
         --no-fetch) perform_fetch=false;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
+        -*) { echo "Error: unknown option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
         *) break;;
     esac
     shift
@@ -87,7 +87,7 @@ upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}')"
 remote_branch="${upstream#*/}"
 if [ "${remote_branch}" = "${upstream}" ]; then
     echo "Using local branch ${upstream} as \"remote\" branch to \"push\" to"
-else 
+else
     remote="${upstream%/*}"
     [ "${remote}/${remote_branch}" = "${upstream}" ] || {
         echo "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}" >&2
@@ -97,7 +97,7 @@ else
 fi
 
 upstream_commit="$(git rev-parse "${upstream}")"
-echo "upstream ${upstream} is at ${upstream_commit}"
+echo "Upstream ${upstream} is at ${upstream_commit}"
 if [ "${to_push}" = "${upstream_commit}" ]; then
     case "${if_needed}" in
         true)

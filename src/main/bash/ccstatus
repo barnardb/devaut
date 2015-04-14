@@ -58,7 +58,7 @@ while (( $# > 0 )); do
         --url) url="$2"; explicit_url=true; shift;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        -*) { echo "Error: unknown option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
         *) break;;
     esac
     shift

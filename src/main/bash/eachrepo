@@ -38,7 +38,7 @@ while (( $# > 0 )); do
         --sequential) parallel=false;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) error "unexpected option $1" "Use -- to separate arguments from options";;
+        -*) error "unknown option $1" "Use -- to separate arguments from options";;
         *) break;;
     esac
     shift
