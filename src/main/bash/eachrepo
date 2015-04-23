@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
+
 set -e
 set -u
+set -o pipefail
+
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
 
 usage() {
     echo "usage: eachrepo [--sequential] [--] <command> [<argument>...]"
 }
 
-error() {
-    echo "ERROR: $1"
-    usage
-    echo
-    printf '%s\n' "Use -? or --help for help" "${@:2}"
-    exit 1
-} >&2
-
 show_help() {
     usage
-    cat <<"EOF"
+    cat <<'EOF'
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
 Commands are issued in parallel using [GNU Parallel] unless the --sequential flag is provided.
@@ -36,15 +34,15 @@ parallel=true
 while (( $# > 0 )); do
     case "$1" in
         --sequential) parallel=false;;
-        -'?' | --help) show_help; exit 0;;
+        -'?' | --help) show_help; exit;;
         --) shift; break;;
-        -*) error "unknown option $1" "Use -- to separate arguments from options";;
+        -*) usage_error "unknown option $1" "Use -? or --help for help, or -- to separate arguments from options";;
         *) break;;
     esac
     shift
 done
 
-[ $# -gt 0 ] || error "missing command"
+[ $# -gt 0 ] || usage_error "missing command"
 
 script_path="${BASH_SOURCE[0]}"
 while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; done
@@ -60,10 +58,9 @@ run_in_dir() {
     "$@" || {
         exit_status=$?
         . "${_scripting_dir}/color.sh"
-        red "FAILED ${exit_status} in ${repo}" >&2
-        exit 1
+        fail "exit status ${exit_status} in ${repo}"
     }
-    exit 0
+    exit
 }
 
 export -f run_in_dir

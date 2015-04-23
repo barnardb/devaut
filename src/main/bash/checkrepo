@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
+
 set -e
 set -u
+set -o pipefail
 
-usage() { echo "usage: checkrepo"; }
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
+
+usage() {
+    echo "usage: checkrepo"
+}
 
 show_help() {
     usage
@@ -18,26 +26,19 @@ As a result, I have made no effort to make this script robust in the face of mer
 EOF
 }
 
-fail() {
-    echo "Error: $1"
-    usage
-    echo
-    echo "Use -? or --help for help, or -- to separate arguments from options"
-    exit 1
-} >&2
 
 while (( $# > 0 )); do
     case "$1" in
-        -'?' | --help) show_help; exit 0;;
+        -'?' | --help) show_help; exit;;
         --) shift; break;;
-        -*) fail "unknown option $1";;
+        -*) usage_error "unknown option $1" "Use -? or --help for help, or -- to separate arguments from options";;
         *) break;;
     esac
     shift
 done
 
 if [ $# -gt 0 ]; then
-    fail "unexpected arguments: $*"
+    usage_error "unexpected arguments: $*"
 fi
 
 readonly tag_name="reviewed"
@@ -59,7 +60,7 @@ remote="${remote#  }"
 if [ "$(git tag --list "${tag_name}")" ]; then
     commit_range="${tag_name}..${remote}"
 else
-    red "Tag \"${tag_name}\" not found, starting at the beginning of time"
+    warn "Tag \"${tag_name}\" not found, starting at the beginning of time"
     commit_range="${remote}"
 fi
 
@@ -78,8 +79,8 @@ read
 index=0
 for commit in ${commits}; do
     index=$((index + 1))
-    ( git show "${commit}" --stat --color && git show "${commit}" --format=format: --color ) | less --quit-if-one-screen --RAW-CONTROL-CHARS --no-init
-    read -p "${index} of ${count}: Accept commit ${commit}? [yes] "
+    (git show "${commit}" --stat --color && git show "${commit}" --format=format: --color) | less --quit-if-one-screen --RAW-CONTROL-CHARS --no-init
+    prompt "${index} of ${count}: Accept commit ${commit}? [yes]"
     yes=yes
     [ "${REPLY}" = "${yes:0:${#REPLY}}" ] || exit 1
     git tag -f "${tag_name}" "${commit}" || exit 1

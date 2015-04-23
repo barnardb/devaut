@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# personal build script
 
 set -e
 set -u
+set -o pipefail
+
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
 
 usage() {
     echo "usage: push [--all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]"
@@ -10,7 +14,7 @@ usage() {
 
 show_help() {
     usage
-    cat <<"EOF"
+    cat <<'EOF'
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -59,21 +63,18 @@ while (( $# > 0 )); do
         --no-fetch) perform_fetch=false;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) { echo "Error: unknown option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 1;;
+        -*) usage_error "unknown option $1" "Use -? or --help for help, or -- to separate arguments from options";;
         *) break;;
     esac
     shift
 done
 
-if [ $# -gt 1 ]; then
-    usage >&2
-    exit 1
-fi
+[ $# -le 1 ] || usage_error "unexpected arguments: $*"
 
 cd "$(git rev-parse --show-toplevel)"
 
 if [ "${dry_run}" = "true" ]; then
-    echo "This is a DRY RUN: Nothing will actually be pushed"
+    warn "This is a DRY RUN: Nothing will actually be pushed"
 fi
 
 to_push="$(git rev-parse "${1-HEAD}")"
@@ -89,10 +90,8 @@ if [ "${remote_branch}" = "${upstream}" ]; then
     echo "Using local branch ${upstream} as \"remote\" branch to \"push\" to"
 else
     remote="${upstream%/*}"
-    [ "${remote}/${remote_branch}" = "${upstream}" ] || {
-        echo "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}" >&2
-        exit 1
-    }
+    [ "${remote}/${remote_branch}" = "${upstream}" ] ||
+        fail "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}"
     echo "Found upstream ${upstream} on remote ${remote}"
 fi
 
@@ -101,12 +100,11 @@ echo "Upstream ${upstream} is at ${upstream_commit}"
 if [ "${to_push}" = "${upstream_commit}" ]; then
     case "${if_needed}" in
         true)
-            echo "Nothing to push."
+            success "Nothing to push."
             exit
             ;;
         *)
-            echo "Error: commit to push is the same as upstream ${upstream}. Nothing to push." >&2
-            exit 1
+            fail "commit to push is the same as upstream ${upstream}. Nothing to push."
             ;;
     esac
 fi
@@ -114,10 +112,9 @@ fi
 merge_base="$(git merge-base "${to_push}" "${upstream_commit}")"
 if [ "${merge_base}" != "${upstream_commit}" ]; then
     if [ "${force}" = true ]; then
-        echo "WARNING (would be error, but --force specified): merge-base is ${merge_base}, which is not the same as upstream ${upstream}."
+        warn "WARNING (would be error, but --force specified): merge-base is ${merge_base}, which is not the same as upstream ${upstream}."
     else
-        echo "Error: merge-base is ${merge_base}, which is not the same as upstream ${upstream}. Please rebase." >&2
-        exit 1
+        fail "merge-base is ${merge_base}, which is not the same as upstream ${upstream}. Please rebase."
     fi
 fi
 
@@ -138,7 +135,7 @@ echo "Moving to shadow working directory ${workdir}"
 cd "${workdir}"
 
 for commit in "${to_push[@]}"; do
-    echo "Preparing to validate and push $commit"
+    status "Preparing to validate and push $commit"
     git checkout --force "${commit}"
     git clean -fxd
 
@@ -162,27 +159,23 @@ for commit in "${to_push[@]}"; do
     elif ls ./*.sbt &>/dev/null || ls ./project/*.sbt &>/dev/null || ls ./project/*.scala &>/dev/null; then
         build_command=(sbt +clean +test +doc +package)
     else
-        echo "Couldn't find a runner for this project" >&2
-        exit 1
+        fail "Couldn't find a runner for this project"
     fi
     # prevent idle sleep under MacOS during build
     if [[ "$OSTYPE" == darwin* ]]; then
         build_command=(caffeinate -i -- "${build_command[@]}")
     fi
 
-    echo "Building using:$(printf ' %q' "${build_command[@]}")"
+    status "Building using:$(printf ' %q' "${build_command[@]}")"
     "${build_command[@]}"
 
     if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
-        echo
-        echo "ERROR: Unstaged changes after a successful build run!" >&2
-        git status
-        exit 1
+        fail "" "ERROR: Unstaged changes after a successful build run!" "$(git status)"
     fi
 
-    echo "$commit validated; pushing"
+    status "$commit validated; pushing"
     if [ "${dry_run}" = true ]; then
-        echo "Skipping push due to DRY RUN"
+        warn "Skipping push due to DRY RUN"
     elif [ "${remote_branch}" = "${upstream}" ]; then
         git rebase "${commit}" "${remote_branch}"
     elif [ "${force}" = true ]; then
@@ -197,4 +190,4 @@ if [ "${dry_run}" = true ]; then
 else
     result="pushed"
 fi
-echo "SUCCESS: ${result} ${to_push[*]} to ${upstream}"
+success "SUCCESS: ${result} ${to_push[*]} to ${upstream}"

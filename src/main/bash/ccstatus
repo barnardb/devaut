@@ -4,13 +4,17 @@ set -e
 set -u
 set -o pipefail
 
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
+
 usage() {
     echo "usage: ccstatus [--url <url>] [--element | --all | --attribute <attribute-name>] [--] [<project-name-regex>...]"
 }
 
 show_help() {
     usage
-    cat <<"EOF"
+    cat <<'EOF'
 
 `ccstatus` shows you the status of one of more builds as parsed from a CCTray XML file.
 These files are often served by CI/build servers from a path ending in "/cctray.xml".
@@ -47,6 +51,7 @@ Dependencies:
 EOF
 }
 
+
 explicit_url=false
 action=status
 
@@ -54,27 +59,21 @@ while (( $# > 0 )); do
     case "$1" in
         --element) action=element;;
         --all) action=all;;
-        --attribute) action=attribute; attribute_name="$2"; shift;;
-        --url) url="$2"; explicit_url=true; shift;;
+        --attribute) action=attribute; [ $# -gt 1 ] || usage_error "$1 needs an argument"; attribute_name="$2"; shift;;
+        --url) [ $# -gt 1 ] || usage_error "$1 needs an argument"; url="$2"; explicit_url=true; shift;;
         -'?' | --help) show_help; exit 0;;
         --) shift; break;;
-        -*) { echo "Error: unknown option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        -*) usage_error "unknown option $1" "Use -? or --help for help, or -- to separate arguments from options";;
         *) break;;
     esac
     shift
 done
 
-function usage_error() {
-    printf 'Error: %s\n' "$@"
-    usage
-    exit 2
-} >&2
-
 [ "${explicit_url}" = 'true' ] || {
     if [ -e .cctray-url ]; then
         url="$(cat .cctray-url)"
     elif url="https://api.travis-ci.org/repos/$(sed -nE 's,^.*github\.com[/:]([^/]+/[^/]+)\.git$,\1,p' .git/config 2>/dev/null | head -1)/cc.xml"; then
-        echo "Assuming CCTray XML at ${url}"
+        warn "Assuming CCTray XML at ${url}"
     else
         usage_error 'the URL for the CCTray XML URL must be provided with `--url <url>` or in a file in the current working directory name ".cctray-url"'
     fi
@@ -105,7 +104,7 @@ function attribute() {
 
 success=true
 
-function status() {
+function print_status() {
     project="$1"
 
     status="$(attribute lastBuildStatus)"
@@ -131,11 +130,11 @@ for name in "${expressions[@]}"; do
     while read; do
         projects[${#projects[@]}]="$REPLY"
     done < <(xquery "//Project/@name/string()" "${cctray_xml}" | grep -E "${name}")
-    [ "${#projects[@]}" -gt 0 ] || { echo "Error: no projects with name matching \"${name}\"" >&2; exit 1; }
+    [ "${#projects[@]}" -gt 0 ] || error "no projects with name matching \"${name}\""
 
     for project in "${projects[@]}"; do
         case "${action}" in
-            status) status "${project}";;
+            status) print_status "${project}";;
             all) xquery "for \$a in //Project[@name = '${project}']/@* return \$a" "${cctray_xml}";;
             element) xquery "//Project[@name = '${project}']" "${cctray_xml}";;
             attribute) attribute "${attribute_name}";;
