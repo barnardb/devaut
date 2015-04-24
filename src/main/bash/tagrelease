@@ -1,0 +1,111 @@
+#!/bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+usage() {
+    echo "usage: tagrelease [--no-fetch] (--major | --minor | --patch | --version <version>) [[--] <commit>]"
+}
+
+show_help() {
+    usage
+    cat <<'EOF'
+
+`tagrelease` asserts that the working copy is clean and creates an annotate tag
+with the version provided in the current repo. It brings up an editor for the
+message which is prepulated with the commit messages since the previous
+release.
+
+A release type can be specified with `--major`, `--minor` or `--patch`,
+in which case the version number will be calculated relative to the version of
+the previous tagged release.
+
+The format of version is not enforced, however it is recommended to follow the
+conventions of [semantic versioning][semver]. The tag name will be the version prefixed
+with the letter v, e.g. `tagrelease --version 1.2.34` creates a tag named `v1.2.34`.
+
+When the `--no-fetch` option is given
+
+The commit to be tagged can be passed as a argument and defaults to HEAD.
+
+[semver]: http://semver.org/
+
+EOF
+}
+
+function usage_error() {
+    printf 'Error: %s\n' "$@"
+    usage
+    exit 2
+} >&2
+
+set_mode() {
+    [[ -z "${mode:-}" ]] || usage_error "multiple version specifiers"
+    mode="$1"
+}
+
+perform_fetch=true
+
+while (( $# > 0 )); do
+    case "$1" in
+        --major) set_mode 1;;
+        --minor) set_mode 2;;
+        --patch) set_mode 3;;
+        --version) set_mode 0; version="$2"; shift;;
+        --no-fetch) perform_fetch=false;;
+        -'?' | --help) show_help; exit 0;;
+        --) break;;
+        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        *) break;;
+    esac
+    shift
+done
+
+case $# in
+    0) committish=HEAD;;
+    1) committish="$1";;
+    *) usage_error "unexpected arguments: ${*:2}"
+esac
+
+[[ -n "${mode:-}" ]] || usage_error "missing version specifier"
+
+commit="$(git rev-parse "${committish}^{commit}")"
+
+if [[ "${perform_fetch}" == true ]]; then
+    git fetch
+fi
+
+if previous_release_tag="$(git describe --tags --match="v*" --abbrev=0 "${commit}" 2>/dev/null)"; then
+    previous_release_commit="$(git rev-parse "${previous_release_tag}^{commit}")"
+    echo ${previous_release_tag}
+    echo "${commit}" != "${previous_release_commit}"
+    [[ "${commit}" != "${previous_release_commit}" ]] || usage_error "no changes since previous commit: ${committish} and previous release tag ${previous_release_tag} both point to ${commit}"
+    log_range="${previous_release_tag}..${commit}"
+else
+    [[ "${mode}" -eq 0 ]] || usage_error "can't find previous release; consider using an explicit --version <version>"
+    log_range="${commit}"
+fi
+
+if [[ "${mode}" -ne 0 ]]; then
+    previous_release_version="${previous_release_tag#v}"
+    awk_program="$(printf 'BEGIN { FS="."; OFS="." } { if ($NF==1) if (%i!=1) $2=0; $%i+=1; print }' "${mode}" "${mode}")"
+    version="$(echo "${previous_release_version}" | awk "${awk_program}")"
+fi
+tag="v${version}"
+
+release_notes_file="$(mktemp -t "${tag}-release-notes.XXXXXX")"
+git log --reverse "${log_range}" > "${release_notes_file}"
+vim "${release_notes_file}"
+
+git tag --force --file "${release_notes_file}" "${tag}" "${commit}"
+
+rm "${release_notes_file}"
+
+cat <<EOF
+Release has been tagged as ${tag}
+To push the tag run:
+
+    git push origin "${tag}" "release-${tag}:master"
+
+EOF
