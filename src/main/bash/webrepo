@@ -1,0 +1,45 @@
+#!/bin/bash
+# Open the current repository in a browser
+
+set -e
+set -u
+set -o pipefail
+
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
+
+usage() {
+    echo "usage: webrepo"
+}
+
+show_help() {
+    usage
+    cat <<'EOF'
+
+`webrepo` tries to find a URL for the current repository and open it in your browser.
+EOF
+}
+
+
+while (( $# > 0 )); do
+    case "$1" in
+        -'?' | --help) show_help; exit;;
+        --) shift; break;;
+        -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
+        *) break;;
+    esac
+    shift
+done
+
+[ $# -eq 0 ] || usage_error "unexpected arguments: $*"
+
+
+local_branch="$(git name-rev --name-only HEAD)"
+remote="$(git config "branch.${local_branch}.remote")"
+remote_url="$(git config "remote.${remote}.url")"
+
+case "${remote_url%:*}" in
+    http | https) exec open "${remote_url}";;
+    *) assertion_error "Didn't find HTTP(S) URL, found: ${remote_url}"
+esac

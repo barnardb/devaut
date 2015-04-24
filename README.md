@@ -137,6 +137,14 @@ The commit to be tagged can be passed as a argument and defaults to HEAD.
 
 [semver]: http://semver.org/
 
+
+
+### `webrepo`
+
+usage: `webrepo`
+
+`webrepo` tries to find a URL for the current repository and open it in your browser.
+
 <!-- END AUTOGEN COMMAND DESCRIPTIONS -->
 
 
