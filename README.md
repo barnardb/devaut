@@ -116,16 +116,24 @@ Dependencies:
 
 ### `tagrelease`
 
-usage: `tagrelease --version <version>`
+usage: `tagrelease [--no-fetch] (--major | --minor | --patch | --version <version>) [[--] <commit>]`
 
 `tagrelease` asserts that the working copy is clean and creates an annotate tag
 with the version provided in the current repo. It brings up an editor for the
 message which is prepulated with the commit messages since the previous
 release.
 
-The format of version is not enforce, however it is recommended to follow the
+A release type can be specified with `--major`, `--minor` or `--patch`,
+in which case the version number will be calculated relative to the version of
+the previous tagged release.
+
+The format of version is not enforced, however it is recommended to follow the
 conventions of [semantic versioning][semver]. The tag name will be the version prefixed
-with the letter v.
+with the letter v, e.g. `tagrelease --version 1.2.34` creates a tag named `v1.2.34`.
+
+When the `--no-fetch` option is given
+
+The commit to be tagged can be passed as a argument and defaults to HEAD.
 
 [semver]: http://semver.org/
 

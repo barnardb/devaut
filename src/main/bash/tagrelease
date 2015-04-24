@@ -4,6 +4,10 @@ set -e
 set -u
 set -o pipefail
 
+scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+source "${scripting_dir}/color.sh"
+
+
 usage() {
     echo "usage: tagrelease [--no-fetch] (--major | --minor | --patch | --version <version>) [[--] <commit>]"
 }
@@ -34,11 +38,6 @@ The commit to be tagged can be passed as a argument and defaults to HEAD.
 EOF
 }
 
-function usage_error() {
-    printf 'Error: %s\n' "$@"
-    usage
-    exit 2
-} >&2
 
 set_mode() {
     [[ -z "${mode:-}" ]] || usage_error "multiple version specifiers"
@@ -54,9 +53,9 @@ while (( $# > 0 )); do
         --patch) set_mode 3;;
         --version) set_mode 0; version="$2"; shift;;
         --no-fetch) perform_fetch=false;;
-        -'?' | --help) show_help; exit 0;;
-        --) break;;
-        -*) { echo "Error: unexpected option $1"; usage; echo; echo "Use -? or --help for help, or -- to separate arguments from options"; } >&2; exit 2;;
+        -'?' | --help) show_help; exit;;
+        --) shift; break;;
+        -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
         *) break;;
     esac
     shift
@@ -78,8 +77,6 @@ fi
 
 if previous_release_tag="$(git describe --tags --match="v*" --abbrev=0 "${commit}" 2>/dev/null)"; then
     previous_release_commit="$(git rev-parse "${previous_release_tag}^{commit}")"
-    echo ${previous_release_tag}
-    echo "${commit}" != "${previous_release_commit}"
     [[ "${commit}" != "${previous_release_commit}" ]] || usage_error "no changes since previous commit: ${committish} and previous release tag ${previous_release_tag} both point to ${commit}"
     log_range="${previous_release_tag}..${commit}"
 else

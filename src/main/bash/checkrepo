@@ -31,7 +31,7 @@ while (( $# > 0 )); do
     case "$1" in
         -'?' | --help) show_help; exit;;
         --) shift; break;;
-        -*) usage_error "unknown option $1" "Use -? or --help for help, or -- to separate arguments from options";;
+        -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
         *) break;;
     esac
     shift
