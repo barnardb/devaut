@@ -41,5 +41,5 @@ remote_url="$(git config "remote.${remote}.url")"
 
 case "${remote_url%:*}" in
     http | https) exec open "${remote_url}";;
-    *) assertion_error "Didn't find HTTP(S) URL, found: ${remote_url}"
+    *) fail "Didn't find HTTP(S) URL, found: ${remote_url}"
 esac
