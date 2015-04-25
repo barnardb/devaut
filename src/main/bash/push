@@ -136,7 +136,7 @@ cd "${workdir}"
 
 for commit in "${to_push[@]}"; do
     status "Preparing to validate and push $commit"
-    git checkout --force "${commit}"
+    git checkout --quiet --force "${commit}"
     git clean -fxd
 
     link_exclusions=()
