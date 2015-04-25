@@ -128,7 +128,7 @@ original_dir="$PWD"
 workdir="$(dirname "${original_dir}")/.$(basename "${original_dir}")-workdir"
 [ -e "${workdir}" ] || {
     echo "Creating new shadow working directory ${workdir}"
-    /usr/local/share/git-core/contrib/workdir/git-new-workdir "${original_dir}" "${workdir}" "${to_push[0]}"
+    PATH="$PATH:/usr/local/share/git-core/contrib/workdir" git-new-workdir "${original_dir}" "${workdir}" "${to_push[0]}"
 }
 
 echo "Moving to shadow working directory ${workdir}"
