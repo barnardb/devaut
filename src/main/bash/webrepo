@@ -47,8 +47,8 @@ remote_url="$(git config "remote.${remote}.url")"
 process_url() {
     case "${1%:*}" in
         http | https) echo "$1";;
-        ssh) process_url "${1#ssh:}";;
-        *)  # assume ssh w/o "ssh:"
+        ssh) process_url "${1#ssh://}";;
+        *)  # assume SSH w/o "ssh://"
             host_and_path="${1#*@}"
             process_url "https://${host_and_path%:*}/${host_and_path##*:}"
             ;;
