@@ -119,8 +119,8 @@ Dependencies:
 usage: `tagrelease [--no-fetch] (--major | --minor | --patch | --version <version>) [[--] <commit>]`
 
 `tagrelease` asserts that the working copy is clean and creates an annotate tag
-with the version provided in the current repo. It brings up an editor for the
-message which is prepulated with the commit messages since the previous
+with the version provided in the current repo. It brings up your editor for the
+message, which is prepulated with the commit messages since the previous
 release.
 
 A release type can be specified with `--major`, `--minor` or `--patch`,
