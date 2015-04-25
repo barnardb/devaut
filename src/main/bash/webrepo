@@ -18,6 +18,11 @@ show_help() {
     cat <<'EOF'
 
 `webrepo` tries to find a URL for the current repository and open it in your browser.
+
+If an HTTP or HTTPS URL is found, it is opened with the `open` command.
+Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so that
+`ssh:git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
+`https://github.com/barnardb/devaut.git`
 EOF
 }
 
@@ -39,7 +44,16 @@ local_branch="$(git name-rev --name-only HEAD)"
 remote="$(git config "branch.${local_branch}.remote")"
 remote_url="$(git config "remote.${remote}.url")"
 
-case "${remote_url%:*}" in
-    http | https) exec open "${remote_url}";;
-    *) fail "Didn't find HTTP(S) URL, found: ${remote_url}"
-esac
+process_url() {
+    case "${1%:*}" in
+        http | https) echo "$1";;
+        ssh) process_url "${1#ssh:}";;
+        *)  # assume ssh w/o "ssh:"
+            host_and_path="${1#*@}"
+            process_url "https://${host_and_path%:*}/${host_and_path##*:}"
+            ;;
+    esac
+}
+
+browser_url="$(process_url "${remote_url}")"
+exec open "${browser_url}"
