@@ -147,7 +147,7 @@ usage: `webrepo`
 
 If an HTTP or HTTPS URL is found, it is opened with the `open` command.
 Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so that
-`ssh:git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
+`ssh://git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
 `https://github.com/barnardb/devaut.git`
 
 <!-- END AUTOGEN COMMAND DESCRIPTIONS -->
