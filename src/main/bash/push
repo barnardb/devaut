@@ -9,7 +9,7 @@ source "${scripting_dir}/color.sh"
 
 
 usage() {
-    echo "usage: push [--all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]"
+    echo "usage: push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]"
 }
 
 show_help() {
@@ -22,6 +22,10 @@ without letting obvious accidents slip through.
 It will validate and push commits that haven't yet been pushed upstream.
 Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
+
+The build command can either be specified using `--build-command` or `push` will
+fallback to some default build commands, such as `go` or `pre-commit.sh` scripts in
+the project root or a standard sbt project.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
 
@@ -53,12 +57,14 @@ dry_run=false
 force=false
 if_needed=false
 perform_fetch=true
+declare -a build_command
 
 while (( $# > 0 )); do
     case "$1" in
         --all-at-once) all_at_once=true;;
         --dry-run) dry_run=true;;
         --force) force=true;;
+        --build-command) shift; build_command=($1);;
         --if-needed) if_needed=true;;
         --no-fetch) perform_fetch=false;;
         -'?' | --help) show_help; exit;;
@@ -149,8 +155,9 @@ for commit in "${to_push[@]}"; do
         fi
     done
 
-    declare -a build_command
-    if [ -e go ]; then
+    if [ -n "${build_command-}" ]; then
+        echo "Using provided build runner"
+    elif [ -e go ]; then
         build_command=(./go)
     elif [ -e pre-commit.sh ]; then
         build_command=(./pre-commit.sh)

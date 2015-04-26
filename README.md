@@ -81,7 +81,7 @@ Dependencies:
 
 ### `push`
 
-usage: `push [--all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]`
+usage: `push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -89,6 +89,10 @@ without letting obvious accidents slip through.
 It will validate and push commits that haven't yet been pushed upstream.
 Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
+
+The build command can either be specified using `--build-command` or `push` will
+fallback to some default build commands, such as `go` or `pre-commit.sh` scripts in
+the project root or a standard sbt project.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
 
