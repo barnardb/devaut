@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+set -o pipefail
+
+scripting_dir="$(dirname "$BASH_SOURCE")/src/main/bash/scripting"
+source "${scripting_dir}/color.sh"
+
+installation_source=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+
+usage() {
+    echo "usage: install [<target-directory>]"
+}
+
+show_help() {
+    usage
+    cat <<'EOF'
+`install` installs the devaut tools by creating symlinks in `target-directory`. Thus if a script is changed no re-install
+is required. It also creates a symlink for the `scripting` directory which contains shared code.
+
+Currently the default target directory is `/usr/local/bin`. If no command line option is given, `install` will ask for
+a target directory interactively. Even the interactive version supports the tilde-expansion for the home directory.
+EOF
+}
+
+
+target_default="/usr/local/bin"
+target_param=""
+
+while (( $# > 0 )); do
+    case "$1" in
+        -'?' | --help) show_help; exit;;
+        --) shift; break;;
+        -*) usage_error "unknown option $1" ;;
+        *) break;;
+    esac
+    shift
+done
+
+[ $# -le 1 ] || usage_error "unexpected arguments: $*"
+
+if (( $# > 0)); then
+    target_param=$1
+fi
+
+if [[ -z "$target_param" ]]; then
+    printf "Installation target [$target_default]:"
+    read target
+else
+    target=${target_param}
+fi
+
+if [[ -z "$target" ]]; then
+    target=$target_default
+fi
+
+target=$(expand_tilde "$target")
+
+for file in ./src/main/bash/*; do
+    name=$(basename "${file}")
+    ln -sf "${installation_source}/${file}" "${target}/${name}"
+done
+
+
+ln -sf "${installation_source}/src/main/bash/scripting" "${target}/scripting"
