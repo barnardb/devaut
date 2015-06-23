@@ -182,7 +182,7 @@ for commit in "${to_push[@]}"; do
     "${build_command[@]}"
 
     if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
-        fail "" "ERROR: Unstaged changes after a successful build run!" "$(git status)"
+        fail "Unstaged changes after a successful build run! $(git status)"
     fi
 
     status "$commit validated; pushing"
