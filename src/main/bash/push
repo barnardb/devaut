@@ -57,6 +57,7 @@ dry_run=false
 force=false
 if_needed=false
 perform_fetch=true
+clean_shadow=true
 declare -a build_command
 
 while (( $# > 0 )); do
@@ -67,6 +68,7 @@ while (( $# > 0 )); do
         --build-command) shift; build_command=($1);;
         --if-needed) if_needed=true;;
         --no-fetch) perform_fetch=false;;
+        --no-clean-shadow) clean_shadow=false;;
         -'?' | --help) show_help; exit;;
         --) shift; break;;
         -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
@@ -143,7 +145,10 @@ cd "${workdir}"
 for commit in "${to_push[@]}"; do
     status "Preparing to validate and push $commit"
     git checkout --quiet --force "${commit}"
-    git clean -fxd
+
+    if [ "${clean_shadow}" = true ]; then
+        git clean -fxd
+    fi
 
     link_exclusions=()
     for path in .cache cache go; do
@@ -176,8 +181,8 @@ for commit in "${to_push[@]}"; do
     status "Building using:$(printf ' %q' "${build_command[@]}")"
     "${build_command[@]}"
 
-    if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
-        fail "" "ERROR: Unstaged changes after a successful build run!" "$(git status)"
+    if [ "${clean_shadow}" = true ] && [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
+        fail "Unstaged changes after a successful build run! $(git status)"
     fi
 
     status "$commit validated; pushing"
