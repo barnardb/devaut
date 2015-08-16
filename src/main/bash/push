@@ -181,7 +181,7 @@ for commit in "${to_push[@]}"; do
     status "Building using:$(printf ' %q' "${build_command[@]}")"
     "${build_command[@]}"
 
-    if [ "${clean_shadow}" = true ] && [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
+    if [ -n "$(set +u && git ls-files --modified --others --exclude-standard "${link_exclusions[@]}")" ]; then
         fail "Unstaged changes after a successful build run! $(git status)"
     fi
 
