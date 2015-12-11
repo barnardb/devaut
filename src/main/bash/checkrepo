@@ -74,7 +74,7 @@ esac
 
 
 git log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) [%an%C(reset)] %C(white)%s%C(reset) %C(dim white)%C(bold yellow)%d%C(reset)' "${commit_range}" --
-read
+read -r
 
 index=0
 for commit in ${commits}; do

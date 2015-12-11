@@ -81,5 +81,5 @@ status() {
 }
 
 prompt() {
-    read -p "$(bright-blue "$@")"
+    read -r -p "$(bright-blue "$@")"
 }

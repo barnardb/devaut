@@ -127,7 +127,7 @@ function print_status() {
 
 for name in "${expressions[@]}"; do
     projects=()
-    while read; do
+    while read -r; do
         projects[${#projects[@]}]="$REPLY"
     done < <(xquery "//Project/@name/string()" "${cctray_xml}" | grep -E "${name}")
     [ "${#projects[@]}" -gt 0 ] || error "no projects with name matching \"${name}\""

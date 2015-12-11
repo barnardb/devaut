@@ -14,7 +14,7 @@ find_scripts() {
         \( "$@" \) \
         -print0
 }
-find_scripts -perm +0111 | xargs -0 shellcheck --exclude=SC2016
+find_scripts -perm +0111 | xargs -0 shellcheck --exclude=SC2016,SC1090
 find_scripts -not -perm +0111 | xargs -0 shellcheck --exclude=SC2016,SC2148
 
 rm -rf target
