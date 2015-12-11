@@ -83,7 +83,7 @@ Dependencies:
 
 ### `push`
 
-usage: `push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch | --to-remote-ref <ref>]... [--] [<commit-ish>]`
+usage: `push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-clean | --no-fetch | --to-remote-ref <ref>]... [--] [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -91,6 +91,8 @@ without letting obvious accidents slip through.
 It will validate and push commits that haven't yet been pushed upstream.
 Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
+
+Use `--no-clean` to suppress the worktree cleaning that by default happens before building.
 
 The build command can either be specified using `--build-command` or `push` will
 fallback to some default build commands, such as `go` or `pre-commit.sh` scripts in
