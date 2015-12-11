@@ -170,6 +170,8 @@ for commit in "${to_push[@]}"; do
         build_command=(./build/sbt +clean +test +doc +package)
     elif ls ./*.sbt &>/dev/null || ls ./project/*.sbt &>/dev/null || ls ./project/*.scala &>/dev/null; then
         build_command=(sbt +clean +test +doc +package)
+    elif [ -f pom.xml ]; then
+        build_command=(mvn clean test)
     else
         fail "Couldn't find a runner for this project"
     fi
