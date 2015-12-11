@@ -9,7 +9,7 @@ source "${scripting_dir}/color.sh"
 
 
 usage() {
-    echo "usage: push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]"
+    echo "usage: push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch | --to-remote-ref <ref>]... [--] [<commit-ish>]"
 }
 
 show_help() {
@@ -28,6 +28,9 @@ fallback to some default build commands, such as `go` or `pre-commit.sh` scripts
 the project root or a standard sbt project.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
+
+The current `@{upstream}` is split into a remote name and remote ref to push to,
+but the remote ref can be changed using the `--remote-ref` option.
 
 The first step is a check to make sure you have a fast-forward commit,
 unless `--force` is used to push with the **potentially destructive** and unrecommended `--force` option on `git push`.
@@ -59,16 +62,23 @@ if_needed=false
 perform_fetch=true
 clean_shadow=true
 declare -a build_command
+declare -a to_remote_ref
+
+non_empty_arg() {
+    [ -n "$2" ] || usage_error "the argument to $1 cannot be empty"
+    echo "$2"
+}
 
 while (( $# > 0 )); do
     case "$1" in
         --all-at-once) all_at_once=true;;
         --dry-run) dry_run=true;;
         --force) force=true;;
-        --build-command) shift; build_command=($1);;
+        --build-command) shift; build_command=($(non_empty_arg --build-command "$1"));;
         --if-needed) if_needed=true;;
         --no-fetch) perform_fetch=false;;
         --no-clean-shadow) clean_shadow=false;;
+        --to-remote-ref) shift; to_remote_ref="$(non_empty_arg --to-remote-ref "$1")";;
         -'?' | --help) show_help; exit;;
         --) shift; break;;
         -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
@@ -95,12 +105,15 @@ fi
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}')"
 remote_branch="${upstream#*/}"
 if [ "${remote_branch}" = "${upstream}" ]; then
+    [ -z "${to_remote_ref}" ] ||
+        fail "--to-upstream-ref was specified, but found local upstream ${upstream}"
     echo "Using local branch ${upstream} as \"remote\" branch to \"push\" to"
 else
     remote="${upstream%/*}"
     [ "${remote}/${remote_branch}" = "${upstream}" ] ||
         fail "Remote ${remote} and branch ${remote_branch} do not add up to upstream ${upstream}"
-    echo "Found upstream ${upstream} on remote ${remote}"
+    [ -n "${to_remote_ref-}" ] || to_remote_ref="${remote_branch}"
+    echo "Will push to ref ${to_remote_ref} on remote ${remote}"
 fi
 
 upstream_commit="$(git rev-parse "${upstream}")"
@@ -195,9 +208,9 @@ for commit in "${to_push[@]}"; do
     elif [ "${remote_branch}" = "${upstream}" ]; then
         git rebase "${commit}" "${remote_branch}"
     elif [ "${force}" = true ]; then
-        git push --force "${remote}" "${commit}:${remote_branch}"
+        git push --force "${remote}" "${commit}:${to_remote_ref}"
     else
-        git push "${remote}" "${commit}:${remote_branch}"
+        git push "${remote}" "${commit}:${to_remote_ref}"
     fi
 done
 
@@ -206,4 +219,4 @@ if [ "${dry_run}" = true ]; then
 else
     result="pushed"
 fi
-success "SUCCESS: ${result} ${to_push[*]} to ${upstream}"
+success "SUCCESS: ${result} ${to_push[*]} to ${remote}/${to_remote_ref}"

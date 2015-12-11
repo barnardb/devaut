@@ -83,7 +83,7 @@ Dependencies:
 
 ### `push`
 
-usage: `push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch]... [--] [<commit-ish>]`
+usage: `push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-fetch | --to-remote-ref <ref>]... [--] [<commit-ish>]`
 
 `push` helps you get all of your amazing commits pushed upstream,
 without letting obvious accidents slip through.
@@ -97,6 +97,9 @@ fallback to some default build commands, such as `go` or `pre-commit.sh` scripts
 the project root or a standard sbt project.
 
 The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
+
+The current `@{upstream}` is split into a remote name and remote ref to push to,
+but the remote ref can be changed using the `--remote-ref` option.
 
 The first step is a check to make sure you have a fast-forward commit,
 unless `--force` is used to push with the **potentially destructive** and unrecommended `--force` option on `git push`.
