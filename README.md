@@ -65,10 +65,12 @@ As a result, I have made no effort to make this script robust in the face of mer
 
 ### `eachrepo`
 
-usage: `eachrepo [--sequential] [--] <command> [<argument>...]`
+usage: `eachrepo [--max-depth <depth>] [--sequential] [--] <command> [<argument>...]`
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
-Commands are issued in parallel using [GNU Parallel] unless the --sequential flag is provided.
+By default, the command only looks at directories 1 level below the current directory,
+but this can be changed with the `--max-depth` option
+Commands are issued in parallel using [GNU Parallel] unless the `--sequential` flag is provided.
 
 For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
 

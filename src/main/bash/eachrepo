@@ -9,7 +9,7 @@ source "${scripting_dir}/color.sh"
 
 
 usage() {
-    echo "usage: eachrepo [--sequential] [--] <command> [<argument>...]"
+    echo "usage: eachrepo [--max-depth <depth>] [--sequential] [--] <command> [<argument>...]"
 }
 
 show_help() {
@@ -17,7 +17,9 @@ show_help() {
     cat <<'EOF'
 
 `eachrepo` makes it easy to issue a command in all git repositories under the current directory.
-Commands are issued in parallel using [GNU Parallel] unless the --sequential flag is provided.
+By default, the command only looks at directories 1 level below the current directory,
+but this can be changed with the `--max-depth` option
+Commands are issued in parallel using [GNU Parallel] unless the `--sequential` flag is provided.
 
 For example, you might find `eachrepo git fetch` useful before disconnecting from a network.
 
@@ -29,10 +31,12 @@ Dependencies:
 EOF
 }
 
+max_depth=1
 parallel=true
 
 while (( $# > 0 )); do
     case "$1" in
+        --max-depth) max_depth="$2"; shift;;
         --sequential) parallel=false;;
         -'?' | --help) show_help; exit;;
         --) shift; break;;
@@ -50,7 +54,7 @@ export _scripting_dir
 _scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
 
 run_in_dir() {
-    repo="$(basename "$1")"
+    repo="${1#./}"
     cd "$1"
     shift
     echo
@@ -66,7 +70,7 @@ run_in_dir() {
 export -f run_in_dir
 
 find_git_worktrees() {
-    find . -depth 1 -type d -not \( -name '.*' -prune \) -execdir test -d {}/.git ';' -prune "$@"
+    find . -maxdepth "${max_depth}" -mindepth 1 -type d -not \( -name '.*' -prune \) -execdir test -d {}/.git ';' -prune "$@"
 }
 
 if [ "${parallel}" = "true" ] && which -s parallel; then
