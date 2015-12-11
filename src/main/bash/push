@@ -172,6 +172,8 @@ for commit in "${to_push[@]}"; do
         build_command=(sbt +clean +test +doc +package)
     elif [ -f pom.xml ]; then
         build_command=(mvn clean test)
+    elif [ -f .ruby-version ] && [ -f .ruby-gemset ] && [ -f Gemfile ] && [ -f Gemfile.lock ] && [ -d spec ]; then
+        build_command=(rspec)
     else
         fail "Couldn't find a runner for this project"
     fi
