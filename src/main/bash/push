@@ -9,7 +9,7 @@ source "${scripting_dir}/color.sh"
 
 
 usage() {
-    echo "usage: push [--build-command <command> | --all-at-once | --dry-run | --force | --if-needed | --no-clean | --no-fetch | --to-remote-ref <ref>]... [--] [<commit-ish>]"
+    echo "usage: push [OPTIONS...] [--] [<commit-ish>]"
 }
 
 show_help() {
@@ -23,37 +23,46 @@ It will validate and push commits that haven't yet been pushed upstream.
 Commits are validated by running them in a shadow worktree using [git-new-workdir],
 so that you can keep on working while the build is running.
 
-Use `--no-clean` to suppress the worktree cleaning that by default happens before building.
+[git-new-workdir]: https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir
 
-The build command can either be specified using `--build-command` or `push` will
-fallback to some default build commands, such as `go` or `pre-commit.sh` scripts in
-the project root or a standard sbt project.
+The current branch is pushed by default, or you can specify the commit-ish
+(branch, commit, HEAD, …) to use.
 
-The current branch is pushed by default, or you can specify the commit-ish (branch, commit, HEAD, …) to use.
+The following options are available:
 
-The current `@{upstream}` is split into a remote name and remote ref to push to,
-but the remote ref can be changed using the `--remote-ref` option.
+    --all-at-once
+        Validate only the last commit and push everything at once,
+        instead of validating and pushing each new commit individually.
 
-The first step is a check to make sure you have a fast-forward commit,
-unless `--force` is used to push with the **potentially destructive** and unrecommended `--force` option on `git push`.
-To ensure we have the current remote state,
-the fast-forward check is preceeded by a call to `git fetch` unless disabled with the `--no-fetch` flag.
+    --build-command <command>
+        Use the given command to test each commit. Suppresses looking for a `go`
+        or `pre-commit.sh` script in the worktree root or trying to guess what
+        kind of project is in the repo and run a default command.
 
-Each commit is validated and pushed individually, or you can `push --all-at-once`.
+    --dry-run
+        Do everything *except* `git push`. This is a convenient way to validate
+        commits in a clean environment without pushing.
 
-Use `--dry-run` to do everything *except* the final push.
-This is a convenient way to validate commits in a clean environment without pushing.
+    --force
+        **Potentially Destructive** and unrecommended!
+        Build and push even if pushing won't be a fast-forward update,
+        using `git push --force`. Implies --no-fetch.
 
-You'll get an error message and non-zero exit status if there's nothing to push,
-but you can `push --if-needed` to have your shell keep its cool.
+    --if-needed
+        Exit with status 0 even if there is nothing to push.
+
+    --no-clean
+        Suppress cleaning the worktree before each build.
+
+    --no-fetch
+        Skip the initial `git fetch` that gets us fresh data for the fail-fast
+        check that our updates are fast-forward.
+
+    --to-remote-ref <ref>
+        Push to the specified ref on the remote system, instead of deriving the
+        ref by splitting the @{upstream} branch into a remote name and ref.
 
 Happy pushing :)
-
-Dependencies:
-
-* [git-new-workdir]
-
-[git-new-workdir]: https://github.com/git/git/blob/master/contrib/workdir/git-new-workdir
 EOF
 }
 
