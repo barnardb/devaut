@@ -10,6 +10,9 @@ I suspect some of them might help you automate yourself too.
 Commands
 --------
 
+The commands can be found in the [src/main/bash](src/main/bash) directory.
+You may want to add this directory to your `PATH`.
+
 <!-- BEGIN AUTOGEN COMMAND DESCRIPTIONS -->
 
 ### `ccstatus`
@@ -173,10 +176,10 @@ Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so t
 <!-- END AUTOGEN COMMAND DESCRIPTIONS -->
 
 
-Dev dependencies
+Dev Dependencies
 ----------------
 
-In addition to runtime (command) dependencies, the development dependencies
-are:
+In addition to runtime (command) dependencies,
+DevAut's pre-push "go" script is itself dependent on:
 
 * [shellcheck](https://github.com/koalaman/shellcheck)
