@@ -151,7 +151,9 @@ original_dir="$PWD"
 workdir="$(dirname "${original_dir}")/.$(basename "${original_dir}")-workdir"
 [ -e "${workdir}" ] || {
     echo "Creating new shadow working directory ${workdir}"
-    PATH="$PATH:/usr/local/share/git-core/contrib/workdir" git-new-workdir "${original_dir}" "${workdir}" "${to_push[0]}"
+    PATH="$PATH:/usr/local/share/git-core/contrib/workdir"
+    hash git-new-workdir 2>/dev/null || fail "push needs git-new-workdir from git contrib to be on the path on in /usr/local/share/git-core/contrib/workdir"
+    git-new-workdir "${original_dir}" "${workdir}" "${to_push[0]}"
 }
 
 echo "Moving to shadow working directory ${workdir}"
