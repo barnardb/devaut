@@ -6,6 +6,15 @@ DevAut
 These are some tools that help me automate myself.
 I suspect some of them might help you automate yourself too.
 
+- [Commands](#commands)
+    - [`ccstatus`](#ccstatus) shows you the status of one of more builds as parsed from a CCTray XML file.
+    - [`checkrepo`](#checkrepo) is a tool for staying on top of changes in a repository,
+    - [`eachrepo`](#eachrepo) makes it easy to issue a command in all git repositories under the current directory.
+    - [`push`](#push) helps you get all of your amazing commits pushed upstream,
+    - [`tagrelease`](#tagrelease) asserts that the working copy is clean and creates an annotate tag
+    - [`webrepo`](#webrepo)
+- [Dev Dependencies](#dev-dependencies)
+
 
 Commands
 --------
