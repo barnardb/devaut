@@ -41,9 +41,9 @@ function define_colors() {
     declare -i c=0
     while [ $c -lt "${#colors[@]}" ]; do
         eval "${colors[$c]}() { format '3$c' 39 \"\$@\"; }"
-        eval "on-${colors[$c]}() { format '4$c' 49 \"\$@\"; }"
-        eval "bright-${colors[$c]}() { format '9$c' 39 \"\$@\"; }"
-        #eval "on-bright-${colors[$c]}() { format '10$c' 49 \"\$@\"; }"
+        eval "on_${colors[$c]}() { format '4$c' 49 \"\$@\"; }"
+        eval "bright_${colors[$c]}() { format '9$c' 39 \"\$@\"; }"
+        #eval "on_bright_${colors[$c]}() { format '10$c' 49 \"\$@\"; }"
         c+=1
     done
 }
@@ -55,7 +55,7 @@ italic() {
 
 
 usage_error() {
-    bright-red "Error: $1"
+    bright_red "Error: $1"
     usage
     echo
     printf '%s\n' "Use -? or --help for help" "${@:2}"
@@ -68,7 +68,7 @@ warn() {
 }
 
 fail() {
-    bright-red "Error: $1"
+    bright_red "Error: $1"
     exit 1
 } >&2
 
@@ -81,5 +81,5 @@ status() {
 }
 
 prompt() {
-    read -r -p "$(bright-blue "$@")"
+    read -r -p "$(bright_blue "$@")"
 }

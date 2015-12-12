@@ -12,7 +12,8 @@ I suspect some of them might help you automate yourself too.
     - [`eachrepo`](#eachrepo) makes it easy to issue a command in all git repositories under the current directory.
     - [`push`](#push) helps you get all of your amazing commits pushed upstream,
     - [`tagrelease`](#tagrelease) asserts that the working copy is clean and creates an annotate tag
-    - [`webrepo`](#webrepo)
+    - [`webrepo`](#webrepo) tries to find a URL for the current repository and open it in your browser.
+
 - [Dev Dependencies](#dev-dependencies)
 
 

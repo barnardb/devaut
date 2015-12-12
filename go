@@ -20,9 +20,14 @@ find_scripts -not -perm +0111 | xargs -0 shellcheck --exclude=SC2016,SC2148
 rm -rf target
 mkdir -p target
 
-command_descriptions="$(find src/main/bash -type f -perm ++x -exec ./build/markdown-help.sh {} ';')"
-cp README.md target/previous_README.md
-awk '/BEGIN/ { print; while (getline < "/dev/stdin") print; print ""; getline; while (!/END/) getline } { print }' \
-    target/previous_README.md \
-    <<<"${command_descriptions}" \
-    >README.md
+update_readme() {
+    command_descriptions="$(find src/main/bash -type f -perm ++x -exec ./build/generate-command-markdown.sh "$1" {} ';')"
+    cp README.md target/previous_README.md
+    awk '/'"$2"'/ { print; while (getline < "/dev/stdin") print; print ""; getline; while (!/'"$3"'/) getline } { print }' \
+        target/previous_README.md \
+        <<<"${command_descriptions}" \
+        >README.md
+}
+
+update_readme help "BEGIN AUTOGEN COMMAND DESCRIPTIONS" "END AUTOGEN COMMAND DESCRIPTIONS"
+update_readme toc "#commands" "#dev-dependencies"
