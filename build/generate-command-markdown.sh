@@ -25,7 +25,7 @@ help() {
 }
 
 toc() {
-    echo "- $("$2" --help | head -3 | tail -1 | sed -nE 's/`([^`]+)`/[`\1`](#\1)/p')"
+    echo "- [\`$1\`](#$1) $("$2" --help | sed -nE "3s/^\`$1\` //p")"
 }
 
 "${print_output}" "$(basename "$2")" "$2"
