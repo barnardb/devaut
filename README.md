@@ -66,6 +66,7 @@ DevAut consists of the following commands:
 - [`ccstatus`](#ccstatus) shows you the status of one of more builds as parsed from a CCTray XML file.
 - [`checkrepo`](#checkrepo) is a tool for staying on top of changes in a repository,
 - [`eachrepo`](#eachrepo) makes it easy to issue a command in all git repositories under the current directory.
+- [`expand-markdown`](#expand-markdown) renders dynamic content in markdown files.
 - [`push`](#push) helps you get all of your amazing commits pushed upstream,
 - [`tagrelease`](#tagrelease) asserts that the working copy is clean and creates an annotate tag
 - [`webrepo`](#webrepo) tries to find a URL for the current repository and open it in your browser.
@@ -142,6 +143,26 @@ Dependencies:
 * [GNU Parallel]
 
 [GNU Parallel]: http://www.gnu.org/software/parallel/
+
+
+### `expand-markdown`
+
+usage: `expand-markdown [--verify-unchanged] [--] <input> [<output>]`
+
+`expand-markdown` renders dynamic content in markdown files.
+
+A section in your markdown that looks like
+
+    <!-- !START RAW! command -->
+
+    previous content
+
+    <!-- !END RAW! -->
+
+Will cause the previous content to be replaced by the output of the command.
+
+`--verify-unchanged` causes the tool to exit with exit status 1 if the output
+file isn't identical to the input file.
 
 
 ### `push`

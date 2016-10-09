@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+set -o pipefail
+
+usage() {
+    echo "usage: expand-markdown [--verify-unchanged] [--] <input> [<output>]"
+}
+
+show_help() {
+    usage
+    cat <<'EOF'
+
+`expand-markdown` renders dynamic content in markdown files.
+
+A section in your markdown that looks like
+
+    <!-- !START RAW! command -->
+
+    previous content
+
+    <!-- !END RAW! -->
+
+Will cause the previous content to be replaced by the output of the command.
+
+`--verify-unchanged` causes the tool to exit with exit status 1 if the output
+file isn't identical to the input file.
+EOF
+}
+
+source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
+
+verify_unchanged=false
+
+while (( $# > 0 )); do
+    case "$1" in
+        --verify-unchanged) verify_unchanged=true;;
+        -'?' | --help) show_help; exit;;
+        --) shift; break;;
+        -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
+        *) break;;
+    esac
+    shift
+done
+
+[ $# -ge 1 ] || usage_error "missing input file"
+[ $# -le 2 ] || usage_error "too many arguments"
+
+awk_script="$(cat <<'END'
+
+    /^<!-- !START RAW! .+ -->$/ {
+        print
+        print ""
+        sub(/^<!-- !.*?! /, "")
+        sub(/ -->$/, "")
+        command=$0
+        while (!/^<!-- !END RAW! -->$/) getline
+        system(command)
+        print ""
+    }
+    
+    { print }
+
+END
+)"
+
+input="$1"
+output="${2-/dev/stdout}"
+awk "${awk_script}" "$1" > "${output}"
+
+if [ "${verify_unchanged}" = true ]; then
+    changes="$(diff "${input}" "${output}")" || {
+        echo "There are changes for ${input} in ${output}:"
+        echo
+        echo "${changes}"
+        echo
+        echo "Run the following to copy these changes into ${input}: "
+        echo
+        echo "    cp ${output} ${input}"
+        echo
+        exit 1
+    } >&2
+fi
