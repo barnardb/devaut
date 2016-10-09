@@ -4,10 +4,6 @@ set -e
 set -u
 set -o pipefail
 
-scripting_dir="$(dirname "${BASH_SOURCE[0]}")/scripting"
-source "${scripting_dir}/color.sh"
-
-
 usage() {
     echo "usage: tagrelease [--no-fetch] (--major | --minor | --patch | --version <version>) [[--] <commit>]"
 }
@@ -40,13 +36,14 @@ The commit to be tagged can be passed as a argument and defaults to HEAD.
 EOF
 }
 
+source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
+
+perform_fetch=true
 
 set_mode() {
     [[ -z "${mode:-}" ]] || usage_error "multiple version specifiers"
     mode="$1"
 }
-
-perform_fetch=true
 
 while (( $# > 0 )); do
     case "$1" in

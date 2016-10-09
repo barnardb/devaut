@@ -4,10 +4,6 @@ set -e
 set -u
 set -o pipefail
 
-scripting_dir="$(dirname "${BASH_SOURCE[0]}")/scripting"
-source "${scripting_dir}/color.sh"
-
-
 usage() {
     echo "usage: checkrepo"
 }
@@ -26,6 +22,7 @@ As a result, I have made no effort to make this script robust in the face of mer
 EOF
 }
 
+source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 while (( $# > 0 )); do
     case "$1" in
@@ -42,11 +39,6 @@ if [ $# -gt 0 ]; then
 fi
 
 readonly tag_name="reviewed"
-
-script_path="${BASH_SOURCE[0]}"
-while [ -h "${script_path}" ]; do script_path="$(readlink "${script_path}")"; done
-scripting_dir="$(cd "$(dirname "${script_path}")" && pwd)/scripting"
-. "${scripting_dir}/color.sh"
 
 remote="$(git branch --remote)"
 if [ ! "${remote}" ]; then

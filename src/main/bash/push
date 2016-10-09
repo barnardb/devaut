@@ -4,10 +4,6 @@ set -e
 set -u
 set -o pipefail
 
-scripting_dir="$(dirname "${BASH_SOURCE[0]}")/scripting"
-source "${scripting_dir}/color.sh"
-
-
 usage() {
     echo "usage: push [OPTIONS...] [--] [<commit-ish>]"
 }
@@ -65,6 +61,8 @@ The following options are available:
 Happy pushing :)
 EOF
 }
+
+source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 all_at_once=false
 dry_run=false

@@ -8,13 +8,42 @@ developers that automates mundane activities.
 Installation
 ------------
 
-The commands are implemented as Bash scripts and live in the `src/main/bash` directory.
-For day-to-day work, it's convenient to add this directory to your `PATH`
-in your shell's dotfiles, using something like this
+For day-to-day work, it's convenient to have the commands on your `PATH`.
+The commands are implemented as Bash scripts in the `src/main/bash` directory.
+When the `go` script runs, it outputs location-agnostic scripts to `target/bin`.
+You have a few alternatives for installation.
+
+#### Alternative A: Add the source directory to the `PATH`
+
+Add something like this to your shell's dotfiles
 (you'll have to use the correct path to your copy of the devaut repo):
 
 ```sh
 PATH="$PATH:$HOME/devaut/src/main/bash"
+```
+
+#### Alternative B: Add the output bin directory to the `PATH`
+
+Make sure you've run the build to generate the location-agnostic scripts:
+
+```sh
+./go
+```
+
+Add something like this to your shell's dotfiles
+(you'll have to use the correct path to your copy of the devaut repo):
+
+```sh
+PATH="$PATH:$HOME/devaut/target/bin"
+```
+
+#### Alternative C: Copy the location-agnostic scripts to a directory on the `PATH`
+
+Build the location-agnostic scripts and copy them to a directory that's already
+on your path, e.g.:
+
+```sh
+./go && cp target/bin/* /usr/local/bin/
 ```
 
 

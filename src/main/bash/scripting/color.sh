@@ -1,6 +1,5 @@
-# To include this in a file use something like the following:
-#     scripting_dir="$(dirname "${BASH_SOURCE[0]}")"
-#     source "${scripting_dir}/color.sh"
+# To use these functions from a script, source it using:
+#     source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 function style_text {
     case $# in
