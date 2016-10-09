@@ -2,13 +2,13 @@
 
 awk_script="$(cat <<'END'
 
-    /!START RAW!/ {
+    /^<!-- !START RAW! .+ -->$/ {
         print
         print ""
-        sub(/<!-- !.*?! /, "")
-        sub(/ -->/, "")
+        sub(/^<!-- !.*?! /, "")
+        sub(/ -->$/, "")
         command=$0
-        while (!/!END RAW!/) getline
+        while (!/^<!-- !END RAW! -->$/) getline
         system(command)
         print ""
     }

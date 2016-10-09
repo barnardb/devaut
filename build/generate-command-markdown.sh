@@ -20,7 +20,7 @@ help() {
     echo
     echo "### \`$1\`"
     echo
-    "$2" --help | sed 's/^usage: \(.*\)/usage: `\1`/'
+    "$2" --help | sed '1s/^usage: \(.*\)/usage: `\1`/'
     echo
 }
 
