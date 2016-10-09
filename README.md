@@ -32,7 +32,7 @@ Commands
 
 DevAut consists of the following commands:
 
-<!-- !START RAW! find src/main/bash -type f -perm -u+x -exec ./build/generate-command-markdown.sh toc {} ';' -->
+<!-- !START RAW! build/generate-command-markdown.sh toc -->
 
 - [`ccstatus`](#ccstatus) shows you the status of one of more builds as parsed from a CCTray XML file.
 - [`checkrepo`](#checkrepo) is a tool for staying on top of changes in a repository,
@@ -43,7 +43,7 @@ DevAut consists of the following commands:
 
 <!-- !END RAW! -->
 
-<!-- !START RAW! find src/main/bash -type f -perm -u+x -exec ./build/generate-command-markdown.sh help {} ';' -->
+<!-- !START RAW! build/generate-command-markdown.sh help -->
 
 
 ### `ccstatus`
