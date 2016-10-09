@@ -170,7 +170,7 @@ cd "${workdir}"
 
 for commit in "${to_push[@]}"; do
     status "Preparing to validate and push $commit"
-    git checkout --quiet --force "${commit}"
+    git checkout --force --detach "${commit}"
 
     if [ "${clean}" = true ]; then
         git clean -fxd
