@@ -1,29 +1,50 @@
-DevAut
+DevAut  [![Build Status](https://travis-ci.org/barnardb/devaut.svg?branch=master)](https://travis-ci.org/barnardb/devaut)
 ======
 
-[![Build Status](https://travis-ci.org/barnardb/devaut.svg?branch=master)](https://travis-ci.org/barnardb/devaut)
+DevAut is a collection of [command-line tools](#commands) for software
+developers that automates mundane activities.
 
-These are some tools that help me automate myself.
-I suspect some of them might help you automate yourself too.
 
-- [Commands](#commands)
-    - [`ccstatus`](#ccstatus) shows you the status of one of more builds as parsed from a CCTray XML file.
-    - [`checkrepo`](#checkrepo) is a tool for staying on top of changes in a repository,
-    - [`eachrepo`](#eachrepo) makes it easy to issue a command in all git repositories under the current directory.
-    - [`push`](#push) helps you get all of your amazing commits pushed upstream,
-    - [`tagrelease`](#tagrelease) asserts that the working copy is clean and creates an annotate tag
-    - [`webrepo`](#webrepo) tries to find a URL for the current repository and open it in your browser.
+Installation
+------------
 
-- [Dev Dependencies](#dev-dependencies)
+The commands are implemented as Bash scripts and live in the `src/main/bash` directory.
+For day-to-day work, it's convenient to add this directory to your `PATH`
+in your shell's dotfiles, using something like this
+(you'll have to use the correct path to your copy of the devaut repo):
+
+```sh
+PATH="$PATH:$HOME/devaut/src/main/bash"
+```
+
+
+Development
+-----------
+
+After making any changes, run the `go` script to lint the scripts with
+[shellcheck] and make sure `README.md` is up to date.
+
+[shellcheck]: https://github.com/koalaman/shellcheck
 
 
 Commands
 --------
 
-The commands can be found in the [src/main/bash](src/main/bash) directory.
-You may want to add this directory to your `PATH`.
+DevAut consists of the following commands:
 
-<!-- BEGIN AUTOGEN COMMAND DESCRIPTIONS -->
+<!-- !START RAW! find src/main/bash -type f -perm ++x -exec ./build/generate-command-markdown.sh toc {} ';' -->
+
+- [`ccstatus`](#ccstatus) shows you the status of one of more builds as parsed from a CCTray XML file.
+- [`checkrepo`](#checkrepo) is a tool for staying on top of changes in a repository,
+- [`eachrepo`](#eachrepo) makes it easy to issue a command in all git repositories under the current directory.
+- [`push`](#push) helps you get all of your amazing commits pushed upstream,
+- [`tagrelease`](#tagrelease) asserts that the working copy is clean and creates an annotate tag
+- [`webrepo`](#webrepo) tries to find a URL for the current repository and open it in your browser.
+
+<!-- !END RAW! -->
+
+<!-- !START RAW! find src/main/bash -type f -perm ++x -exec ./build/generate-command-markdown.sh help {} ';' -->
+
 
 ### `ccstatus`
 
@@ -160,11 +181,13 @@ A release type can be specified with `--major`, `--minor` or `--patch`,
 in which case the version number will be calculated relative to the version of
 the previous tagged release.
 
-The format of version is not enforced, however it is recommended to follow the
-conventions of [semantic versioning][semver]. The tag name will be the version prefixed
-with the letter v, e.g. `tagrelease --version 1.2.34` creates a tag named `v1.2.34`.
+The format of the version is not enforced, but it is recommended to follow the
+[semantic versioning][semver] convention. The tag name will be the version
+prefixed with the letter 'v', e.g. `tagrelease --version 1.2.34` creates a tag
+named `v1.2.34`.
 
-When the `--no-fetch` option is given
+When the `--no-fetch` option is given, a `git fetch` is not performed before
+creating the tag.
 
 The commit to be tagged can be passed as a argument and defaults to HEAD.
 
@@ -183,13 +206,5 @@ Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so t
 `ssh://git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
 `https://github.com/barnardb/devaut.git`
 
-<!-- END AUTOGEN COMMAND DESCRIPTIONS -->
 
-
-Dev Dependencies
-----------------
-
-In addition to runtime (command) dependencies,
-DevAut's pre-push "go" script is itself dependent on:
-
-* [shellcheck](https://github.com/koalaman/shellcheck)
+<!-- !END RAW! -->
