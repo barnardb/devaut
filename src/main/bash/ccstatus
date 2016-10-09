@@ -4,7 +4,7 @@ set -e
 set -u
 set -o pipefail
 
-scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+scripting_dir="$(dirname "${BASH_SOURCE[0]}")/scripting"
 source "${scripting_dir}/color.sh"
 
 
@@ -82,8 +82,8 @@ done
 if [ $# -gt 0 ]; then
     expressions=("$@")
 else
-    expressions="${url#*#}"
-    [ "${expressions}" != "${url}" ] || expressions='.*'
+    expressions=("${url#*#}")
+    [ "${expressions[0]}" != "${url}" ] || expressions=('.*')
 fi
 
 function xquery {

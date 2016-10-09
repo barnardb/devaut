@@ -1,5 +1,5 @@
 # To include this in a file use something like the following:
-#     scripting_dir="$(dirname "$BASH_SOURCE")"
+#     scripting_dir="$(dirname "${BASH_SOURCE[0]}")"
 #     source "${scripting_dir}/color.sh"
 
 format() {

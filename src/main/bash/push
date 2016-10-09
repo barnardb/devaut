@@ -4,7 +4,7 @@ set -e
 set -u
 set -o pipefail
 
-scripting_dir="$(dirname "$BASH_SOURCE")/scripting"
+scripting_dir="$(dirname "${BASH_SOURCE[0]}")/scripting"
 source "${scripting_dir}/color.sh"
 
 
@@ -73,7 +73,6 @@ if_needed=false
 perform_fetch=true
 clean=true
 declare -a build_command
-declare -a to_remote_ref
 
 non_empty_arg() {
     [ -n "$2" ] || usage_error "the argument to $1 cannot be empty"
@@ -116,7 +115,7 @@ fi
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}')"
 remote_branch="${upstream#*/}"
 if [ "${remote_branch}" = "${upstream}" ]; then
-    [ -z "${to_remote_ref}" ] ||
+    [ -z "${to_remote_ref-}" ] ||
         fail "--to-upstream-ref was specified, but found local upstream ${upstream}"
     echo "Using local branch ${upstream} as \"remote\" branch to \"push\" to"
 else
