@@ -96,7 +96,7 @@ function xquery {
     )
 }
 
-cctray_xml="$(curl --silent "${url}")"
+cctray_xml="$(curl --silent --fail --show-error "${url}")"
 
 function attribute() {
     xquery "//Project[@name='${project}']/@$1/string()" "${cctray_xml}"
