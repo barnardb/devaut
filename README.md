@@ -151,7 +151,17 @@ usage: `expand-markdown [--verify-unchanged] [--] <input> [<output>]`
 
 `expand-markdown` renders dynamic content in markdown files.
 
-A section in your markdown that looks like
+You can include a file in a code block by doing:
+
+    <!-- !START INCLUDE! path/to/file.extension -->
+    
+    ~~~ .extension
+    previous content
+    ~~~
+    
+    <!-- !END INCLUDE! -->
+
+A section in your markdown that looks like:
 
     <!-- !START RAW! command -->
 

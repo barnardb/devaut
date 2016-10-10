@@ -14,7 +14,17 @@ show_help() {
 
 `expand-markdown` renders dynamic content in markdown files.
 
-A section in your markdown that looks like
+You can include a file in a code block by doing:
+
+    <!-- !START INCLUDE! path/to/file.extension -->
+    
+    ~~~ .extension
+    previous content
+    ~~~
+    
+    <!-- !END INCLUDE! -->
+
+A section in your markdown that looks like:
 
     <!-- !START RAW! command -->
 
@@ -55,9 +65,37 @@ awk_script="$(cat <<'END'
         sub(/^<!-- !.*?! /, "")
         sub(/ -->$/, "")
         command=$0
-        while (!/^<!-- !END RAW! -->$/) getline
         system(command)
         print ""
+        do { getline } while (!/^<!-- !END RAW! -->$/)
+    }
+    
+    /^<!-- !START INCLUDE! .+ -->$/ {
+        print
+        print ""
+        sub(/^<!-- !.*?! /, "")
+        sub(/ -->$/, "")
+        file=$0
+        sub(/.*\./, "")
+        ext=$0
+
+        # We prefer fenced code blocks, as they allow for syntax highlighting.
+        # Unfortunately, the parser GitHub uses is happy to interpret "```" as
+        # the end of a "~~~"-fenced code block, and vice versa, which makes it
+        # impossible to have Markdown with a fenced code block inside a fenced
+        # code block. So to decrease the likelihood of a catastrophe we use
+        # indented code blocks for Markdown, but we use fenced code blocks for
+        # everything else to get the syntax highlighting.
+        if (ext == "md") {
+            while ((getline < file) > 0) print "    " $0
+        } else {
+            print "~~~ " ext
+            while ((getline < file) > 0) print
+            print "~~~"
+        }
+
+        print ""
+        do { getline } while (!/^<!-- !END INCLUDE! -->$/)
     }
     
     { print }
