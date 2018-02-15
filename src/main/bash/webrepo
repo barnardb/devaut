@@ -6,7 +6,7 @@ set -u
 set -o pipefail
 
 usage() {
-    echo "usage: webrepo"
+    echo "usage: webrepo [--print]"
 }
 
 show_help() {
@@ -19,13 +19,18 @@ If an HTTP or HTTPS URL is found, it is opened with the `open` command.
 Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so that
 `ssh://git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
 `https://github.com/barnardb/devaut.git`
+
+If the --print option is sepecified, the URL is printed to stdout instead of opened.
 EOF
 }
 
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
+should_print=false
+
 while (( $# > 0 )); do
     case "$1" in
+        --print) should_print=true;;
         -'?' | --help) show_help; exit;;
         --) shift; break;;
         -*) usage_error "unknown option $1" "Use '--' to separate arguments from options";;
@@ -53,4 +58,9 @@ process_url() {
 }
 
 browser_url="$(process_url "${remote_url}")"
-exec open "${browser_url}"
+
+if [ "${should_print}" = true ]; then
+    echo "${browser_url}"
+else
+    exec open "${browser_url}"
+fi
