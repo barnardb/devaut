@@ -195,6 +195,8 @@ for commit in "${to_push[@]}"; do
         build_command=(sbt +test:compile +test +package reload +doc)
     elif [ -f pom.xml ]; then
         build_command=(mvn clean test)
+    elif [ -f gradlew ]; then
+        build_command=(./gradlew clean check)
     elif [ -f .ruby-version ] && [ -f .ruby-gemset ] && [ -f Gemfile ] && [ -f Gemfile.lock ] && [ -d spec ]; then
         build_command=(rspec)
     else
