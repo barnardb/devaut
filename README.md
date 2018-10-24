@@ -257,7 +257,7 @@ The commit to be tagged can be passed as a argument and defaults to HEAD.
 
 ### `webrepo`
 
-usage: `webrepo`
+usage: `webrepo [--print]`
 
 `webrepo` tries to find a URL for the current repository and open it in your browser.
 
@@ -265,6 +265,8 @@ If an HTTP or HTTPS URL is found, it is opened with the `open` command.
 Otherwise, an SSH URL is assumed, and a naïve transformation is performed, so that
 `ssh://git@github.com:barnardb/devaut.git` and `git@github.com:barnardb/devaut.git` become
 `https://github.com/barnardb/devaut.git`
+
+If the --print option is sepecified, the URL is printed to stdout instead of opened.
 
 
 <!-- !END RAW! -->
