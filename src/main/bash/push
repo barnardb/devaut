@@ -189,6 +189,8 @@ for commit in "${to_push[@]}"; do
         build_command=(./go)
     elif [ -e pre-commit.sh ]; then
         build_command=(./pre-commit.sh)
+    elif [ -e build.sh ]; then
+        build_command=(./build.sh)
     elif { compgen -G '*.sbt' || compgen -G 'project/*.sbt' || compgen -G 'project/*.scala'; } >/dev/null; then
         build_command=(sbt +test:compile +test +package reload +doc)
     elif [ -f pom.xml ]; then
