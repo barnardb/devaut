@@ -42,7 +42,7 @@ done
 [ $# -eq 0 ] || usage_error "unexpected arguments: $*"
 
 
-local_branch="$(git name-rev --name-only HEAD)"
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
 remote="$(git config "branch.${local_branch}.remote")"
 remote_url="$(git config "remote.${remote}.url")"
 
