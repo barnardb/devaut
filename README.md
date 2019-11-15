@@ -211,6 +211,10 @@ The following options are available:
         Build and push even if pushing won't be a fast-forward update,
         using `git push --force`. Implies --no-fetch.
 
+    --git-push-option <option>
+        Pass `--push-option <option>` when calling `git push`.
+        This option can be used multiple times.
+
     --if-needed
         Exit with status 0 even if there is nothing to push.
 

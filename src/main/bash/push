@@ -44,6 +44,10 @@ The following options are available:
         Build and push even if pushing won't be a fast-forward update,
         using `git push --force`. Implies --no-fetch.
 
+    --git-push-option <option>
+        Pass `--push-option <option>` when calling `git push`.
+        This option can be used multiple times.
+
     --if-needed
         Exit with status 0 even if there is nothing to push.
 
@@ -71,6 +75,7 @@ if_needed=false
 perform_fetch=true
 clean=true
 declare -a build_command
+declare -a git_push_options
 
 non_empty_arg() {
     [ -n "$2" ] || usage_error "the argument to $1 cannot be empty"
@@ -83,6 +88,7 @@ while (( $# > 0 )); do
         --dry-run) dry_run=true;;
         --force) force=true;;
         --build-command) shift; IFS=" " read -r -a build_command <<< "$(non_empty_arg --build-command "$1")";;
+        --git-push-option) shift; git_push_options+=(--push-option "$1");;
         --if-needed) if_needed=true;;
         --no-fetch) perform_fetch=false;;
         --no-clean) clean=false;;
@@ -222,9 +228,9 @@ for commit in "${to_push[@]}"; do
     elif [ "${remote_branch}" = "${upstream}" ]; then
         git rebase "${commit}" "${remote_branch}"
     elif [ "${force}" = true ]; then
-        git push --force "${remote}" "${commit}:${to_remote_ref}"
+        git push "${git_push_options[@]}" --force "${remote}" "${commit}:${to_remote_ref}"
     else
-        git push "${remote}" "${commit}:${to_remote_ref}"
+        git push "${git_push_options[@]}" "${remote}" "${commit}:${to_remote_ref}"
     fi
 done
 
