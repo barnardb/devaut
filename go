@@ -11,7 +11,7 @@ mkdir -p target/bin
 
 ./build/check-scripts.sh go build src/main/bash
 
-commands=($(find src/main/bash -type f -perm -u+x | sort))
+mapfile -t commands < <(find src/main/bash -type f -perm -u+x | sort)
 awk_script="$(cat <<'END'
     $0 == "source \"$(dirname \"${BASH_SOURCE[0]}\")/scripting/color.sh\"" {
         while ((getline < "src/main/bash/scripting/color.sh") > 0) print

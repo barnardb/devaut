@@ -16,7 +16,7 @@ toc() {
     echo "- [\`$1\`](#$1) $("$2" --help | sed -nE "3s/^\`$1\` //p")"
 }
 
-commands=($(find src/main/bash -type f -perm -u+x | sort))
+mapfile -t commands < <(find src/main/bash -type f -perm -u+x | sort)
 
 for c in "${commands[@]}"; do
     "$1" "$(basename "$c")" "$c"

@@ -82,7 +82,7 @@ while (( $# > 0 )); do
         --all-at-once) all_at_once=true;;
         --dry-run) dry_run=true;;
         --force) force=true;;
-        --build-command) shift; build_command=($(non_empty_arg --build-command "$1"));;
+        --build-command) shift; IFS=" " read -r -a build_command <<< "$(non_empty_arg --build-command "$1")";;
         --if-needed) if_needed=true;;
         --no-fetch) perform_fetch=false;;
         --no-clean) clean=false;;
@@ -148,7 +148,7 @@ if [ "${merge_base}" != "${upstream_commit}" ]; then
 fi
 
 if [ "${all_at_once}" = false ]; then
-    to_push=($(git rev-list --reverse "${upstream_commit}..${to_push}"))
+    mapfile -t to_push < <(git rev-list --reverse "${upstream_commit}..${to_push}")
     echo "Total of ${#to_push[@]} commits to push:"
     printf "%s\n" "${to_push[@]}"
 fi

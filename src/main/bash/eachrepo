@@ -65,7 +65,7 @@ find_git_worktrees() {
     find . -maxdepth "${max_depth}" -mindepth 1 -type d -not \( -name '.*' -prune \) -execdir test -d {}/.git ';' -prune "$@"
 }
 
-if [ "${parallel}" = "true" ] && which -s parallel; then
+if [ "${parallel}" = "true" ] && command -v parallel &>/dev/null; then
     find_git_worktrees -print0 | exec parallel -0 --group -j 0 run_in_dir {} "$(printf '%q ' "$@")" ';'
 else
     find_git_worktrees -exec bash -c 'run_in_dir "$@"' - {} "$@" ';'
