@@ -30,5 +30,11 @@ find_scripts() {
         -print0
 }
 
+# Notes on shellcheck exclusions:
+#   - SC2016 is ignored because it complains about backticks in single-quotes,
+#     which we use as in markdown, but shellcheck assumes we intended to be
+#     command substitution and thus wants to see them in double-quotes.
+#     (We would use the dollar-and-parentheses syntax for that: `$(…)`.)
+
 find_scripts      -perm -u+x | xargs -0 shellcheck --external-sources --exclude=SC2016
 find_scripts -not -perm -u+x | xargs -0 shellcheck --external-sources --exclude=SC2016 --shell=bash
