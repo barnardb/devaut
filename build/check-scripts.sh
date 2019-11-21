@@ -30,5 +30,5 @@ find_scripts() {
         -print0
 }
 
-find_scripts      -perm +0111 | xargs -0 shellcheck -x --exclude=SC2016,SC1090
-find_scripts -not -perm +0111 | xargs -0 shellcheck -x --exclude=SC2016,SC2148
+find_scripts      -perm -u+x | xargs -0 shellcheck -x --exclude=SC2016,SC1090
+find_scripts -not -perm -u+x | xargs -0 shellcheck -x --exclude=SC2016,SC2148
