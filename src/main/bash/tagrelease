@@ -36,6 +36,7 @@ The commit to be tagged can be passed as a argument and defaults to HEAD.
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 perform_fetch=true

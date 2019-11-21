@@ -24,6 +24,7 @@ If the --print option is sepecified, the URL is printed to stdout instead of ope
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 should_print=false

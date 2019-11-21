@@ -22,6 +22,7 @@ As a result, I have made no effort to make this script robust in the face of mer
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 while (( $# > 0 )); do

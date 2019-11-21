@@ -27,6 +27,7 @@ Dependencies:
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 max_depth=1

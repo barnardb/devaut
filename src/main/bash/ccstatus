@@ -47,6 +47,7 @@ Dependencies:
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 explicit_url=false

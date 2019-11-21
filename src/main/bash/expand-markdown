@@ -39,6 +39,7 @@ file isn't identical to the input file.
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 verify_unchanged=false

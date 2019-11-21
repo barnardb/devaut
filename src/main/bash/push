@@ -66,6 +66,7 @@ Happy pushing :)
 EOF
 }
 
+# shellcheck source=SCRIPTDIR/scripting/color.sh
 source "$(dirname "${BASH_SOURCE[0]}")/scripting/color.sh"
 
 all_at_once=false

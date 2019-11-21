@@ -30,5 +30,5 @@ find_scripts() {
         -print0
 }
 
-find_scripts      -perm -u+x | xargs -0 shellcheck --external-sources --exclude=SC2016,SC1090
-find_scripts -not -perm -u+x | xargs -0 shellcheck --external-sources --shell=bash --exclude=SC2016
+find_scripts      -perm -u+x | xargs -0 shellcheck --external-sources --exclude=SC2016
+find_scripts -not -perm -u+x | xargs -0 shellcheck --external-sources --exclude=SC2016 --shell=bash
